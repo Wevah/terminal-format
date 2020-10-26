@@ -299,6 +299,8 @@ public struct CLIFormat: Hashable {
 	public var reset: Bool = false
 
 	/// Custom formatting sequences. Perhaps your terminal supports formatting escapes not supplied here?
+	///
+	/// Applied after everything else.
 	public var custom: [String]?
 
 }
