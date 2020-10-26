@@ -1,7 +1,25 @@
 
 import Foundation
 
-public struct CLIFormat: Equatable, ExpressibleByArrayLiteral, CustomStringConvertible, CustomDebugStringConvertible {
+public struct CLIFormat: Equatable {
+	public init(foregroundColor: CLIFormat.Color? = nil, backgroundColor: CLIFormat.Color? = nil, underlineColor: CLIFormat.Color? = nil, bold: Bool = false, faint: Bool = false, normalIntensity: Bool = false, italic: Bool? = nil, underline: CLIFormat.UnderlineStyle? = nil, blink: CLIFormat.BlinkStyle? = nil, reverseVideo: Bool? = nil, conceal: Bool? = nil, crossOut: Bool? = nil, overline: Bool? = nil, superscript: Bool = false, subscript: Bool = false, reset: Bool = false) {
+		self.foregroundColor = foregroundColor
+		self.backgroundColor = backgroundColor
+		self.underlineColor = underlineColor
+		self.bold = bold
+		self.faint = faint
+		self.normalIntensity = normalIntensity
+		self.italic = italic
+		self.underline = underline
+		self.blink = blink
+		self.reverseVideo = reverseVideo
+		self.conceal = conceal
+		self.crossOut = crossOut
+		self.overline = overline
+		self.superscript = superscript
+		self.subscript = `subscript`
+		self.reset = reset
+	}
 
 	/// A terminal color.
 	public struct Color: Hashable, CustomDebugStringConvertible {
@@ -88,7 +106,7 @@ public struct CLIFormat: Equatable, ExpressibleByArrayLiteral, CustomStringConve
 
 	}
 
-	public enum BlinkStyle: String, Hashable, CustomDebugStringConvertible {
+	public enum BlinkStyle: String, Hashable, CustomDebugStringConvertible, ExpressibleByBooleanLiteral {
 
 		case regular = "4"
 		case rapid = "5" // not widely supported
@@ -105,15 +123,20 @@ public struct CLIFormat: Equatable, ExpressibleByArrayLiteral, CustomStringConve
 					return "no blink"
 			}
 		}
+
+		public init(booleanLiteral value: Bool) {
+			self = value ? .regular : .none
+		}
+
 	}
 
-	public enum UnderlineStyle: String, Hashable, CustomDebugStringConvertible {
+	public enum UnderlineStyle: String, Hashable, CustomDebugStringConvertible, ExpressibleByBooleanLiteral {
 
 		/// A single, standard underline.
 		case single = "4"
 
 		// not widely supported
-		case double = "4:2"
+		case double = "21" //"4:2"
 		case curly = "4:3" // iTerm 3.4+
 		case dotted = "4:4"
 		case dashed = "4:5"
@@ -141,82 +164,239 @@ public struct CLIFormat: Equatable, ExpressibleByArrayLiteral, CustomStringConve
 			return "underline: \(typeString)"
 		}
 
-	}
-
-	public enum Element: Hashable {
-
-		/// Foreground color.
-		case color(Color)
-
-		/// Background color.
-		case backgroundColor(Color)
-
-		/// Underline color. Not widely supported.
-		case underlineColor(Color) // not widely supported
-
-		case bold
-		case faint
-		case normalIntensity // also not bold or faint
-		case italic
-
-		case underline(UnderlineStyle)
-
-		/// Blinking style.
-		case blink(BlinkStyle)
-
-		case reverseVideo(Bool)
-
-		case conceal(Bool)
-
-		/// Crossed-out style. Not widely supported.
-		///
-		/// - iTerm
-		case crossOut(Bool)
-
-		case overline // not widely supported
-
-		case superscript // mintty
-		case `subscript` // mintty
-
-		/// Reset all styles.
-		case reset
-
-		case custom(String)
+		public init(booleanLiteral value: Bool) {
+			self = value ? .single : .none
+		}
 
 	}
 
-	var elements: [Element]
+//	public enum Element: Hashable {
+//
+//		/// Foreground color.
+//		case color(Color)
+//
+//		/// Background color.
+//		case backgroundColor(Color)
+//
+//		/// Underline color. Not widely supported.
+//		case underlineColor(Color) // not widely supported
+//
+//		case bold
+//		case faint
+//		case normalIntensity // also not bold or faint
+//		case italic
+//
+//		case underline(UnderlineStyle)
+//
+//		/// Blinking style.
+//		case blink(BlinkStyle)
+//
+//		case reverseVideo(Bool)
+//
+//		case conceal(Bool)
+//
+//		/// Crossed-out style. Not widely supported.
+//		///
+//		/// - iTerm
+//		case crossOut(Bool)
+//
+//		case overline(Bool) // not widely supported
+//
+//		case superscript // mintty
+//		case `subscript` // mintty
+//
+//		/// Reset all styles.
+//		case reset
+//
+//		case custom(String)
+//
+//	}
 
-	public init<S>(_ sequence: S) where S: Sequence, S.Element == Element {
-		self.elements = sequence.uniquing()
-	}
+	public var foregroundColor: Color?
+	public var backgroundColor: Color?
+	public var underlineColor: Color?
 
-	public init(arrayLiteral elements: Element...) {
-	  self.init(elements)
-	}
+	public var bold: Bool = false
+	public var faint: Bool = false
+	public var normalIntensity: Bool = false // also not bold or faint
+	public var italic: Bool?
 
-	public var description: String {
-		guard elements.count > 0 else { return "" }
-		return "\u{001B}[\(elements.map { String(describing: $0) }.joined(separator: ";"))m"
-	}
+	public var underline: UnderlineStyle?
 
-	public var debugDescription: String {
-		guard elements.count > 0 else { return ".empty" }
-		return "[\(elements.map { String(reflecting: $0) }.joined(separator: ", "))]"
-	}
+	public var blink: BlinkStyle?
+
+	public var reverseVideo: Bool?
+
+	public var conceal: Bool?
+
+	public var crossOut: Bool?
+
+	public var overline: Bool?
+
+	public var superscript: Bool = false
+	public var `subscript`: Bool = false
+
+	public var reset: Bool = false
 
 }
 
 public extension CLIFormat {
 
 	/// Convenience property for resetting all formatting.
-	static let reset: CLIFormat = [.reset]
+	static let reset: CLIFormat = CLIFormat(reset: true)
+ //[.reset]
 
 	/// Convenience property for an empty formatting object.
 	///
 	/// Can be used to decide whether to add formatting without needing to
 	/// duplicate interpolated strings.
 	//static let empty: CLIFormat = []
+
+}
+
+extension CLIFormat: CustomStringConvertible {
+
+	public var description: String {
+		var elements = [String]()
+
+		// Make sure reset is always first.
+		if reset {
+			elements.append("0")
+		}
+
+		if let foregroundColor = foregroundColor {
+			elements.append(foregroundColor.foregroundDescription)
+		}
+
+		if let backgroundColor = backgroundColor {
+			elements.append(backgroundColor.backgroundDescription)
+		}
+
+		if let underlineColor = underlineColor {
+			elements.append(underlineColor.underlineDescription)
+		}
+
+		if bold {
+			elements.append("1")
+		}
+
+		if faint {
+			elements.append("2")
+		}
+
+		if let italic = italic {
+			elements.append(italic ? "3" : "23")
+		}
+
+		if let underline = underline {
+			elements.append(underline.rawValue)
+		}
+
+		if let blink = blink {
+			elements.append(blink.rawValue)
+		}
+
+		if let reverseVideo = reverseVideo {
+			elements.append(reverseVideo ? "7" : "27")
+		}
+
+		if let conceal = conceal {
+			elements.append(conceal ? "8" : "28")
+		}
+
+		if let crossOut = crossOut {
+			elements.append(crossOut ? "9" : "29")
+		}
+
+		if normalIntensity {
+			elements.append("22")
+		}
+
+		if let overline = overline {
+			elements.append(overline ? "53" : "55")
+		}
+
+		if superscript {
+			elements.append("73")
+		}
+
+		if `subscript` {
+			elements.append("74")
+		}
+
+		return "\u{001B}[\(elements.joined(separator: ";"))m"
+	}
+
+	public var debugDescription: String {
+		var elements = [String]()
+
+		// Make sure reset is always first.
+		if reset {
+			elements.append("reset all")
+		}
+
+		if let foregroundColor = foregroundColor {
+			elements.append("color: \(String(reflecting: foregroundColor))")
+		}
+
+		if let backgroundColor = backgroundColor {
+			elements.append("color: \(String(reflecting: backgroundColor))")
+		}
+
+		if let underlineColor = underlineColor {
+			elements.append("color: \(String(reflecting: underlineColor))")
+		}
+
+		if bold {
+			elements.append("bold")
+		}
+
+		if faint {
+			elements.append("faint")
+		}
+
+		if let italic = italic {
+			elements.append(italic ? "italic" : "no italic")
+		}
+
+		if let underline = underline {
+			elements.append(String(reflecting: underline))
+		}
+
+		if let blink = blink {
+			elements.append(String(reflecting: blink))
+		}
+
+		if let reverseVideo = reverseVideo {
+			elements.append(reverseVideo ? "reverse video" : "no reverse video")
+		}
+
+		if let conceal = conceal {
+			elements.append(conceal ? "conceal" : "no conceal")
+		}
+
+		if let crossOut = crossOut {
+			elements.append(crossOut ? "cross out" : "no cross out")
+		}
+
+		if normalIntensity {
+			elements.append("normal intensity")
+		}
+
+		if let overline = overline {
+			elements.append(overline ? "overline" : "no overline")
+		}
+
+		if superscript {
+			elements.append("superscript")
+		}
+
+		if `subscript` {
+			elements.append("subscript")
+		}
+
+		return "CLIFormat: [\(elements.joined(separator: ", "))]"
+	}
 
 }
 
@@ -271,150 +451,65 @@ private extension CLIFormat.Color {
 }
 
 /// Convenience properties.
-public extension CLIFormat.Element {
+public extension CLIFormat {
 
-	static let black = Self.color(.black)
-	/// A red foreground color.
-	static let red = Self.color(.red)
-	static let green = Self.color(.green)
-	static let yellow = Self.color(.yellow)
-	static let blue = Self.color(.blue)
-	static let magenta = Self.color(.magenta)
-	static let cyan = Self.color(.cyan)
-	static let white = Self.color(.white)
+	static let black = Self(foregroundColor: .black)
+	static let red = Self(foregroundColor: .red)
+	static let green = Self(foregroundColor: .green)
+	static let yellow = Self(foregroundColor: .yellow)
+	static let blue = Self(foregroundColor: .blue)
+	static let magenta = Self(foregroundColor: .magenta)
+	static let cyan = Self(foregroundColor: .cyan)
+	static let white = Self(foregroundColor: .white)
 
-	static let gray = Self.color(.gray) // "Bright Black"
-	static let brightRed = Self.color(.brightRed)
-	static let brightGreen = Self.color(.brightGreen)
-	static let brightYellow = Self.color(.brightYellow)
-	static let brightBlue = Self.color(.brightBlue)
-	static let brightMagenta = Self.color(.brightMagenta)
-	static let brightCyan = Self.color(.brightCyan)
-	static let brightWhite = Self.color(.brightWhite)
+	static let gray = Self(foregroundColor: .gray) // "Bright Black"
+	static let brightRed = Self(foregroundColor: .brightRed)
+	static let brightGreen = Self(foregroundColor: .brightGreen)
+	static let brightYellow = Self(foregroundColor: .brightYellow)
+	static let brightBlue = Self(foregroundColor: .brightBlue)
+	static let brightMagenta = Self(foregroundColor: .brightMagenta)
+	static let brightCyan = Self(foregroundColor: .brightCyan)
+	static let brightWhite = Self(foregroundColor: .brightWhite)
 
-	static func color(index: UInt8) -> CLIFormat.Element {
-		return Self.color(CLIFormat.Color(bits8: index))
+	static func foregroundColor(index: UInt8) -> CLIFormat {
+		return Self(foregroundColor: Color(bits8: index))
 	}
 
-	static func color(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat.Element {
-		return Self.color(CLIFormat.Color(red: red, green: green, blue: blue))
+	static func foregroundColor(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat {
+		return Self(foregroundColor: Color(red: red, green: green, blue: blue))
 	}
 
-	static let defaultColor = Self.color(.default)
+	static let defaultForegroundColor = Self(foregroundColor: .default)
 
-	static func backgroundColor(index: UInt8) -> CLIFormat.Element {
-		return Self.backgroundColor(CLIFormat.Color(bits8: index))
+	static func backgroundColor(index: UInt8) -> CLIFormat {
+		return Self(backgroundColor: Color(bits8: index))
 	}
 
-	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat.Element {
-		return Self.backgroundColor(CLIFormat.Color(red: red, green: green, blue: blue))
+	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat {
+		return Self(backgroundColor: Color(red: red, green: green, blue: blue))
 	}
 
-	static let defaultBackgroundColor = Self.backgroundColor(.default)
+	static let defaultBackgroundColor = Self(backgroundColor :.default)
 
-	static func underlineColor(index: UInt8) -> CLIFormat.Element {
-		return Self.underlineColor(CLIFormat.Color(bits8: index))
+	static func underlineColor(index: UInt8) -> CLIFormat {
+		return Self(underlineColor: Color(bits8: index))
 	}
 
-	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat.Element {
-		return Self.underlineColor(CLIFormat.Color(red: red, green: green, blue: blue))
+	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat {
+		return Self(underlineColor: Color(red: red, green: green, blue: blue))
 	}
 
-	static let defaultUnderlineColor = Self.underlineColor(.default)
+	static let defaultUnderlineColor = Self(underlineColor: .default)
 
-	static let underline = Self.underline(.single)
-	static let doubleUnderline = Self.underline(.double)
-	static let curlyUnderline = Self.underline(.curly)
+	static let underline = Self(underline: .single)
+	static let doubleUnderline = Self(underline:.double)
+	static let curlyUnderline = Self(underline: .curly)
 
 	/// Convenience property for regular blink.
-	static let blink = Self.blink(.regular)
+	static let blink = Self(blink: true)
 
 	/// Convenience property for rapid blink. Not widely supported.
-	static let rapidBlink = Self.blink(.rapid)
-
-}
-
-extension CLIFormat.Element: CustomStringConvertible, CustomDebugStringConvertible {
-
-	public var description: String {
-		switch self {
-			case let .color(color):
-				return color.foregroundDescription
-			case let .backgroundColor(color):
-				return color.backgroundDescription
-			case let .underlineColor(color):
-				return color.underlineDescription
-
-			case .reset:
-				return "0"
-			case .bold:
-				return "1"
-			case .faint:
-				return "2"
-			case .italic:
-				return "3"
-			case let .underline(type):
-				return type.rawValue
-			case let .blink(type):
-				return type.rawValue
-			case let .reverseVideo(value):
-				return value ? "7" : "27"
-			case let .conceal(value):
-				return value ? "8" : "28"
-			case let .crossOut(value):
-				return value ? "9" : "29"
-			case .normalIntensity:
-				return "22"
-			case .overline:
-				return "53"
-			case .superscript:
-				return "73"
-			case .subscript:
-				return "74"
-			case let .custom(value):
-				return value
-		}
-	}
-
-	public var debugDescription: String {
-		switch self {
-			case let .color(color):
-				return "color: \(String(reflecting: color))"
-			case let .backgroundColor(color):
-				return "bg color: \(String(reflecting: color))"
-			case let .underlineColor(color):
-				return "underline color: \(String(reflecting: color))"
-
-			case .reset:
-				return "reset"
-			case .bold:
-				return "bold"
-			case .faint:
-				return "faint"
-			case .italic:
-				return "italic"
-			case let .underline(type):
-				return String(reflecting: type)
-			case let .blink(type):
-				return String(reflecting: type)
-			case let .reverseVideo(value):
-				return value ? "reverse video" : "no reverse video"
-			case let .conceal(value):
-				return value ? "conceal" : "no conceal"
-			case let .crossOut(value):
-				return value ? "cross out" : "no cross out"
-			case .normalIntensity:
-				return "normal intensity"
-			case .overline:
-				return "overline"
-			case .superscript:
-				return "superscript"
-			case .subscript:
-				return "subscript"
-			case let .custom(value):
-				return "custom: \(value)"
-		}
-	}
+	static let rapidBlink = Self(blink: .rapid)
 
 }
 
@@ -423,10 +518,10 @@ public extension DefaultStringInterpolation {
 	/// Append a formatted string.
 	/// - Parameters:
 	///   - string: The string to format.
-	///   - format: The formatting object. If `.empty`, no formatting will be applied.
+	///   - format: The formatting object. If `nil`, no formatting will be applied.
 	mutating func appendInterpolation<T>(_ value: T, format: CLIFormat?) where T: CustomStringConvertible {
 		if let format = format {
-			self.appendLiteral("\(format)\(value)\(CLIFormat.reset)")
+			self.appendLiteral("\(format)\(value)\(.reset)")
 		} else {
 			self.appendInterpolation(value)
 		}
@@ -438,15 +533,6 @@ public extension DefaultStringInterpolation {
 	mutating func appendInterpolation(_ format: CLIFormat?) {
 		guard let format = format else { return }
 		self.appendLiteral(String(describing: format))
-	}
-
-}
-
-extension CommandLine {
-
-	var supportsTrueColor: Bool {
-		guard let colorterm = ProcessInfo.processInfo.environment["COLORTERM"] else { return false }
-		return colorterm == "truecolor" || colorterm == "24bit"
 	}
 
 }
