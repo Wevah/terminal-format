@@ -21,7 +21,7 @@ import Foundation
 ///	// "four" in the default foreground color with a blue background,
 ///	// and finally "five" in the default colors.
 /// ```
-public struct CLIFormat: Equatable {
+public struct CLIFormat: Hashable {
 
 	public init(foregroundColor: CLIFormat.Color? = nil, backgroundColor: CLIFormat.Color? = nil, underlineColor: CLIFormat.Color? = nil, bold: Bool = false, faint: Bool = false, normalIntensity: Bool = false, italic: Bool? = nil, underline: CLIFormat.UnderlineStyle? = nil, blink: CLIFormat.BlinkStyle? = nil, reverseVideo: Bool? = nil, conceal: Bool? = nil, crossOut: Bool? = nil, overline: Bool? = nil, superscript: Bool = false, subscript: Bool = false, reset: Bool = false, custom: [String]? = nil) {
 		self.foregroundColor = foregroundColor
