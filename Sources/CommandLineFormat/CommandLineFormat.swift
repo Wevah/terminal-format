@@ -23,7 +23,7 @@ import Foundation
 /// ```
 public struct CLIFormat: Equatable {
 
-	public init(foregroundColor: CLIFormat.Color? = nil, backgroundColor: CLIFormat.Color? = nil, underlineColor: CLIFormat.Color? = nil, bold: Bool = false, faint: Bool = false, normalIntensity: Bool = false, italic: Bool? = nil, underline: CLIFormat.UnderlineStyle? = nil, blink: CLIFormat.BlinkStyle? = nil, reverseVideo: Bool? = nil, conceal: Bool? = nil, crossOut: Bool? = nil, overline: Bool? = nil, superscript: Bool = false, subscript: Bool = false, reset: Bool = false) {
+	public init(foregroundColor: CLIFormat.Color? = nil, backgroundColor: CLIFormat.Color? = nil, underlineColor: CLIFormat.Color? = nil, bold: Bool = false, faint: Bool = false, normalIntensity: Bool = false, italic: Bool? = nil, underline: CLIFormat.UnderlineStyle? = nil, blink: CLIFormat.BlinkStyle? = nil, reverseVideo: Bool? = nil, conceal: Bool? = nil, crossOut: Bool? = nil, overline: Bool? = nil, superscript: Bool = false, subscript: Bool = false, reset: Bool = false, custom: [String]? = nil) {
 		self.foregroundColor = foregroundColor
 		self.backgroundColor = backgroundColor
 		self.underlineColor = underlineColor
@@ -40,6 +40,7 @@ public struct CLIFormat: Equatable {
 		self.superscript = superscript
 		self.subscript = `subscript`
 		self.reset = reset
+		self.custom = custom
 	}
 
 	/// A terminal color.
@@ -297,6 +298,9 @@ public struct CLIFormat: Equatable {
 	/// Will be inserted into strings first, so any other properties will take effect.
 	public var reset: Bool = false
 
+	/// Custom formatting sequences. Perhaps your terminal supports formatting escapes not supplied here?
+	public var custom: [String]?
+
 }
 
 public extension CLIFormat {
@@ -376,6 +380,10 @@ extension CLIFormat: CustomStringConvertible {
 			elements.append("74")
 		}
 
+		if let custom = custom {
+			elements.append(contentsOf: custom)
+		}
+
 		return "\u{001B}[\(elements.joined(separator: ";"))m"
 	}
 
@@ -445,6 +453,10 @@ extension CLIFormat: CustomStringConvertible {
 
 		if `subscript` {
 			elements.append("subscript")
+		}
+
+		if let custom = custom {
+			elements.append("custom: \(custom)")
 		}
 
 		return "CLIFormat: [\(elements.joined(separator: ", "))]"
