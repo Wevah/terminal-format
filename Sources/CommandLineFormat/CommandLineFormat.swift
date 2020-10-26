@@ -3,7 +3,8 @@ import Foundation
 
 /// A struct for easy standard ANSI terminal color/formatting codes.
 ///
-/// Example:
+/// Examples (assuming output is to an ANSI-compatible terminal):
+///
 ///
 /// ```
 /// let format = CLIFormat(foregroundColor: .brightGreen, backgroundColor: .gray)
@@ -11,6 +12,16 @@ import Foundation
 /// // Prints "hello" in bright green text with a gray background.
 /// ```
 ///
+/// ```
+///	let green = CLIFormat.green
+///	let redBackground = CLIFormat(backgroundColor: .red)
+///	let blueBackgroundOnly = CLIFormat(backgroundColor: .blue, reset: true)
+///	print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four \(.reset) five")
+///	// Prints "one" in the default colors, "two" in green,
+///	// "three" in green with a red background,
+///	// "four" in the default foreground color with a blue background,
+///	// and finally "five" in the default colors.
+/// ```
 public struct CLIFormat: Equatable {
 
 	public init(foregroundColor: CLIFormat.Color? = nil, backgroundColor: CLIFormat.Color? = nil, underlineColor: CLIFormat.Color? = nil, bold: Bool = false, faint: Bool = false, normalIntensity: Bool = false, italic: Bool? = nil, underline: CLIFormat.UnderlineStyle? = nil, blink: CLIFormat.BlinkStyle? = nil, reverseVideo: Bool? = nil, conceal: Bool? = nil, crossOut: Bool? = nil, overline: Bool? = nil, superscript: Bool = false, subscript: Bool = false, reset: Bool = false) {
@@ -45,7 +56,6 @@ public struct CLIFormat: Equatable {
 			/// 256-color table.
 			///
 			/// The first 16 entries map to the `.bits4` colors.
-
 			case bits8(UInt8)
 
 			/// 24-bit color, where red, green, and blue are from 0-255
@@ -58,41 +68,71 @@ public struct CLIFormat: Equatable {
 
 		private let type: ColorType
 
-		private init?(bits4 value: UInt8) {
-			guard (30...37).contains(value) || (90...97).contains(value) else { return nil }
+		private init(bits4 value: UInt8) {
+			precondition((30...37).contains(value) || (90...97).contains(value))
 			type = .bits4(value)
 		}
 
-		public init(bits8 value: UInt8) {
-			type = .bits8(value)
+		/// Initialize an ANSI 8-bit color.
+		/// - Parameter index: The index into the 8-bit color table.
+		public init(bits8 index: UInt8) {
+			type = .bits8(index)
 		}
 
+		/// Initialize a 24-bit color.
+		///
+		/// Not supported by Terminal.app, but supported by iTerm.
+		///
+		/// - Parameters:
+		///   - red: The red component, from 0-255.
+		///   - green: The green component, from 0-255.
+		///   - blue: The blue component, from 0-255.
 		public init(red: UInt8, green: UInt8, blue: UInt8) {
 			type = .bits24(red: red, green: green, blue: blue)
 		}
 
+		/// Initialize a color to the default.
 		private init() {
 			type = .default
 		}
 
-		public static let black = Self(bits4: 30)!
-		public static let red = Self(bits4: 31)!
-		public static let green = Self(bits4: 32)!
-		public static let yellow = Self(bits4: 33)!
-		public static let blue = Self(bits4: 34)!
-		public static let magenta = Self(bits4: 35)!
-		public static let cyan = Self(bits4: 36)!
-		public static let white = Self(bits4: 37)!
+		// Note that the following are generally user-customizable!
 
-		public static let gray = Self(bits4: 90)! // "Bright Black"
-		public static let brightRed = Self(bits4: 91)!
-		public static let brightGreen = Self(bits4: 92)!
-		public static let brightYellow = Self(bits4: 93)!
-		public static let brightBlue = Self(bits4: 94)!
-		public static let brightMagenta = Self(bits4: 95)!
-		public static let brightCyan = Self(bits4: 96)!
-		public static let brightWhite = Self(bits4: 97)!
+		/// The standard black color.
+		public static let black = Self(bits4: 30)
+		/// The standard red color.
+		public static let red = Self(bits4: 31)
+		/// The standard green color.
+		public static let green = Self(bits4: 32)
+		/// The standard yellow color.
+		public static let yellow = Self(bits4: 33)
+		/// The standard blue color.
+		public static let blue = Self(bits4: 34)
+		/// The standard magenta color.
+		public static let magenta = Self(bits4: 35)
+		/// The standard cyan color.
+		public static let cyan = Self(bits4: 36)
+		/// The standard white color.
+		public static let white = Self(bits4: 37)
 
+		/// The standard gray ("bright black") color
+		public static let gray = Self(bits4: 90)
+		/// The standard bright red color.
+		public static let brightRed = Self(bits4: 91)
+		/// The standard bright green color.
+		public static let brightGreen = Self(bits4: 92)
+		/// The standard bright yellow color.
+		public static let brightYellow = Self(bits4: 93)
+		/// The standard bright blue color.
+		public static let brightBlue = Self(bits4: 94)
+		/// The standard bright magenta color.
+		public static let brightMagenta = Self(bits4: 95)
+		/// The standard bright cyan color.
+		public static let brightCyan = Self(bits4: 96)
+		/// The standard bright white color.
+		public static let brightWhite = Self(bits4: 97)
+
+		/// The default text/background/underline color.
 		public static let `default` = Color()
 
 		public var debugDescription: String {
@@ -119,9 +159,13 @@ public struct CLIFormat: Equatable {
 
 	public enum BlinkStyle: String, Hashable, CustomDebugStringConvertible, ExpressibleByBooleanLiteral {
 
-		case regular = "4"
-		case rapid = "5" // not widely supported
+		/// Regular blink frequency.
+		case regular = "5"
 
+		/// Rapid blink frequency.
+		case rapid = "6" // not widely supported
+
+		/// Disable blink.
 		case none = "25"
 
 		public var debugDescription: String {
@@ -147,11 +191,24 @@ public struct CLIFormat: Equatable {
 		case single = "4"
 
 		// not widely supported
-		case double = "21" //"4:2"
+		case double = "21" // "4:2"
+
+		/// Curly underline.
+		///
+		/// Not supported by Terminal.app, but supported in iTerm 3.4+.
 		case curly = "4:3" // iTerm 3.4+
+
+		/// Dotted underline.
+		///
+		/// Not widely supported.
 		case dotted = "4:4"
+
+		/// Dashed underline.
+		///
+		/// Not widely supported.
 		case dashed = "4:5"
 
+		/// No underline.
 		case none = "24"
 
 		public var debugDescription: String {
@@ -181,30 +238,82 @@ public struct CLIFormat: Equatable {
 
 	}
 
+	/// The foreground color.
+	///
+	/// If `nil`, the previous color is not changed.
 	public var foregroundColor: Color?
+
+	/// The background color.
+	///
+	/// If `nil`, the previous color is not changed.
 	public var backgroundColor: Color?
+
+	/// The underline color.
+	///
+	/// If `nil`, the previous color is not changed.
+	///
+	/// Not widely supported.
 	public var underlineColor: Color?
 
+	/// Enable bold text.
+	///
+	/// To disable, see `normalIntensity`.
 	public var bold: Bool = false
+
+	/// Enable faint text.
+	///
+	/// To disable, see `normalIntensity`.
 	public var faint: Bool = false
+
+	/// Normal intensity; disable `bold` and `faint`.
 	public var normalIntensity: Bool = false // also not bold or faint
+
+	/// Italic text.
+	///
+	/// If `nil`, the previous italic setting is not changed.
 	public var italic: Bool?
 
+	/// Text underline style.
 	public var underline: UnderlineStyle?
 
+	/// Text blink style.
 	public var blink: BlinkStyle?
 
+	/// Whether to reverse foreground and background colors.
+	///
+	/// If `nil`, the previous setting is unchanged.
 	public var reverseVideo: Bool?
 
+	/// Whether to conceal text.
+	///
+	/// If `nil`, the previous setting is unchanged.
 	public var conceal: Bool?
 
+	/// Cross out text.
+	///
+	/// If `nil`, the previous setting is unchanged.
 	public var crossOut: Bool?
 
+	/// Overline text.
+	///
+	/// If `nil`, the previous setting is unchanged.
+	///
+	/// Not widely supported.
 	public var overline: Bool?
 
+	/// Superscript.
+	///
+	/// mintty; not in standard.
 	public var superscript: Bool = false
+
+	/// Subscript.
+	///
+	/// mintty; not in standard.
 	public var `subscript`: Bool = false
 
+	/// Reset all formatting.
+	///
+	/// Will be inserted into strings first, so any other properties will take effect.
 	public var reset: Bool = false
 
 }
@@ -213,13 +322,6 @@ public extension CLIFormat {
 
 	/// Convenience property for resetting all formatting.
 	static let reset: CLIFormat = CLIFormat(reset: true)
- //[.reset]
-
-	/// Convenience property for an empty formatting object.
-	///
-	/// Can be used to decide whether to add formatting without needing to
-	/// duplicate interpolated strings.
-	//static let empty: CLIFormat = []
 
 }
 
