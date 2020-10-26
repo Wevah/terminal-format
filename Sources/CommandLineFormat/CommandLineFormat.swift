@@ -5,7 +5,6 @@ import Foundation
 ///
 /// Examples (assuming output is to an ANSI-compatible terminal):
 ///
-///
 /// ```
 /// let format = CLIFormat(foregroundColor: .brightGreen, backgroundColor: .gray)
 /// print("hello".ansiFormatted(format: format))
@@ -44,7 +43,7 @@ public struct CLIFormat: Equatable {
 	}
 
 	/// A terminal color.
-	public struct Color: Hashable, CustomDebugStringConvertible {
+	public struct Color: Hashable {
 
 		private enum ColorType: Hashable {
 			/// One of the original 16 colors.
@@ -135,29 +134,9 @@ public struct CLIFormat: Equatable {
 		/// The default text/background/underline color.
 		public static let `default` = Color()
 
-		public var debugDescription: String {
-			switch type {
-				case let .bits4(value):
-					switch value {
-						case 30...37:
-							return ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"][Int(value) - 30]
-						case 90...97:
-							return ["gray", "bright red", "bright green", "bright yellow", "bright blue", "bright magenta", "bright cyan", "bright white"][Int(value) - 90]
-						default:
-							return "invalid"
-					}
-				case let .bits8(value):
-					return "8-bit color (index \(value))"
-				case let .bits24(red: red, green: green, blue: blue):
-					return "24-bit color (red: \(red), green: \(green), blue: \(blue))"
-				case .default:
-					return "default"
-			}
-		}
-
 	}
 
-	public enum BlinkStyle: String, Hashable, CustomDebugStringConvertible, ExpressibleByBooleanLiteral {
+	public enum BlinkStyle: String, CustomDebugStringConvertible, ExpressibleByBooleanLiteral {
 
 		/// Regular blink frequency.
 		case regular = "5"
@@ -185,12 +164,14 @@ public struct CLIFormat: Equatable {
 
 	}
 
-	public enum UnderlineStyle: String, Hashable, CustomDebugStringConvertible, ExpressibleByBooleanLiteral {
+	public enum UnderlineStyle: String, CustomDebugStringConvertible, ExpressibleByBooleanLiteral {
 
 		/// A single, standard underline.
 		case single = "4"
 
-		// not widely supported
+		/// A double underline.
+		///
+		/// Not widely supported
 		case double = "21" // "4:2"
 
 		/// Curly underline.
@@ -320,7 +301,7 @@ public struct CLIFormat: Equatable {
 
 public extension CLIFormat {
 
-	/// Convenience property for resetting all formatting.
+	/// Convenience for resetting all formatting.
 	static let reset: CLIFormat = CLIFormat(reset: true)
 
 }
@@ -473,7 +454,7 @@ extension CLIFormat: CustomStringConvertible {
 
 public typealias CLIColor = CLIFormat.Color
 
-private extension CLIFormat.Color {
+private extension CLIColor {
 
 	private func bits4ToBits8() -> UInt8 {
 		guard case let .bits4(value) = type else { fatalError() }
@@ -518,6 +499,30 @@ private extension CLIFormat.Color {
 				return "58;2;\(red);\(green);\(blue)"
 			case .default:
 				return "59"
+		}
+	}
+
+}
+
+extension CLIColor: CustomDebugStringConvertible {
+
+	public var debugDescription: String {
+		switch type {
+			case let .bits4(value):
+				switch value {
+					case 30...37:
+						return ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"][Int(value) - 30]
+					case 90...97:
+						return ["gray", "bright red", "bright green", "bright yellow", "bright blue", "bright magenta", "bright cyan", "bright white"][Int(value) - 90]
+					default:
+						return "invalid"
+				}
+			case let .bits8(value):
+				return "8-bit color (index \(value))"
+			case let .bits24(red: red, green: green, blue: blue):
+				return "24-bit color (red: \(red), green: \(green), blue: \(blue))"
+			case .default:
+				return "default"
 		}
 	}
 
@@ -612,6 +617,10 @@ public extension DefaultStringInterpolation {
 
 public extension StringProtocol {
 
+	/// Formats a string with ANSI escape codes and a reset at the end.
+	/// - Parameter format: The format to use.
+	/// - Returns: A new string with escape sequence described by `format` prepended,
+	/// and the `.reset` escape sequence appended.
 	func ansiFormatted(format: CLIFormat) -> String {
 		return "\(self, format: format)"
 	}
