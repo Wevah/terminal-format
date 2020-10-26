@@ -1,7 +1,7 @@
 import XCTest
 
-import CommandLineColorTests
+import CommandLineFormatTests
 
 var tests = [XCTestCaseEntry]()
-tests += CommandLineColorTests.allTests()
+tests += CommandLineFormatTests.allTests()
 XCTMain(tests)
