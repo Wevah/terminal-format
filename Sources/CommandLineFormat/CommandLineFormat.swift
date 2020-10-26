@@ -400,6 +400,8 @@ extension CLIFormat: CustomStringConvertible {
 
 }
 
+public typealias CLIColor = CLIFormat.Color
+
 private extension CLIFormat.Color {
 
 	private func bits4ToBits8() -> UInt8 {
