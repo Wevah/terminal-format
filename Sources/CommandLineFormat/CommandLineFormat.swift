@@ -1,7 +1,18 @@
 
 import Foundation
 
+/// A struct for easy standard ANSI terminal color/formatting codes.
+///
+/// Example:
+///
+/// ```
+/// let format = CLIFormat(foregroundColor: .brightGreen, backgroundColor: .gray)
+/// print("hello".ansiFormatted(format: format))
+/// // Prints "hello" in bright green text with a gray background.
+/// ```
+///
 public struct CLIFormat: Equatable {
+
 	public init(foregroundColor: CLIFormat.Color? = nil, backgroundColor: CLIFormat.Color? = nil, underlineColor: CLIFormat.Color? = nil, bold: Bool = false, faint: Bool = false, normalIntensity: Bool = false, italic: Bool? = nil, underline: CLIFormat.UnderlineStyle? = nil, blink: CLIFormat.BlinkStyle? = nil, reverseVideo: Bool? = nil, conceal: Bool? = nil, crossOut: Bool? = nil, overline: Bool? = nil, superscript: Bool = false, subscript: Bool = false, reset: Bool = false) {
 		self.foregroundColor = foregroundColor
 		self.backgroundColor = backgroundColor
@@ -169,48 +180,6 @@ public struct CLIFormat: Equatable {
 		}
 
 	}
-
-//	public enum Element: Hashable {
-//
-//		/// Foreground color.
-//		case color(Color)
-//
-//		/// Background color.
-//		case backgroundColor(Color)
-//
-//		/// Underline color. Not widely supported.
-//		case underlineColor(Color) // not widely supported
-//
-//		case bold
-//		case faint
-//		case normalIntensity // also not bold or faint
-//		case italic
-//
-//		case underline(UnderlineStyle)
-//
-//		/// Blinking style.
-//		case blink(BlinkStyle)
-//
-//		case reverseVideo(Bool)
-//
-//		case conceal(Bool)
-//
-//		/// Crossed-out style. Not widely supported.
-//		///
-//		/// - iTerm
-//		case crossOut(Bool)
-//
-//		case overline(Bool) // not widely supported
-//
-//		case superscript // mintty
-//		case `subscript` // mintty
-//
-//		/// Reset all styles.
-//		case reset
-//
-//		case custom(String)
-//
-//	}
 
 	public var foregroundColor: Color?
 	public var backgroundColor: Color?
@@ -535,6 +504,14 @@ public extension DefaultStringInterpolation {
 	mutating func appendInterpolation(_ format: CLIFormat?) {
 		guard let format = format else { return }
 		self.appendLiteral(String(describing: format))
+	}
+
+}
+
+public extension StringProtocol {
+
+	func ansiFormatted(format: CLIFormat) -> String {
+		return "\(self, format: format)"
 	}
 
 }
