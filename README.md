@@ -1,3 +1,6 @@
 # CommandLineFormat
+version 0.1.0
 
-A description of this package.
+Simple terminal string formatting.
+
+API is still in flux!
