@@ -124,4 +124,5 @@ public struct CLIImage {
 
 		return "\(CLIFormat.osc)1337;File=\(optionsString):\(base64)\(CLIFormat.bell)"
 	}
+	
 }
