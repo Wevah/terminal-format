@@ -178,12 +178,19 @@ public struct CLIFormat: Hashable {
 
 		/// A double underline.
 		///
-		/// Not widely supported
-		case double = "21" // "4:2"
+		/// Not widely supported.
+		///
+		/// - Note: The standard specifies `21` for double underline, but that will cause
+		/// iTerm to render no underline at all.
+		///
+		/// Will cause text to render in the wrong color in Terminal.app.
+		case double = "4:2" // "21""
 
 		/// Curly underline.
 		///
-		/// Not supported by Terminal.app, but supported in iTerm 3.4+.
+		/// Supported by iTerm 3.4+.
+		///
+		/// - Note: Will cause text to render in the wrong color in Terminal.app.
 		case curly = "4:3" // iTerm 3.4+
 
 		/// Dotted underline.
