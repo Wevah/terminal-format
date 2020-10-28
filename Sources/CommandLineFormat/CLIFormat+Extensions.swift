@@ -18,7 +18,7 @@ public extension CLIFormat {
 
 	/// Sets the terminal window title.
 	static func setWindowTitle(_ title: String) {
-		print("\(CLIFormat.escape)]0;\(title)\(CLIFormat.bell)")
+		print("\(Self.osc)0;\(title)\(Self.bell)")
 	}
 
 }

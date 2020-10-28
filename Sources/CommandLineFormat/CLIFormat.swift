@@ -310,8 +310,17 @@ public extension CLIFormat {
 	/// Convenience for resetting all formatting.
 	static let reset: CLIFormat = CLIFormat(reset: true)
 
+	/// The escape character (`ESC`, `0x1b`).
 	static let escape: String = "\u{001B}"
+
+	/// The bell character (`BEL`, `0x07`).
 	static let bell: String = "\u{0007}"
+
+	/// Control Sequence Introducer, `ESC` + `[`.
+	static let csi: String = "\(escape)["
+
+	/// Operating System Command, `ESC` + `]`.
+	static let osc: String = "\(escape)]"
 
 }
 
@@ -389,7 +398,7 @@ extension CLIFormat: CustomStringConvertible {
 			elements.append(contentsOf: custom)
 		}
 
-		return "\u{001B}[\(elements.joined(separator: ";"))m"
+		return "\(Self.csi)\(elements.joined(separator: ";"))m"
 	}
 
 	public var debugDescription: String {

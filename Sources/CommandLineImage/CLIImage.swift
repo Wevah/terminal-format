@@ -122,6 +122,6 @@ public struct CLIImage {
 
 		let optionsString = options.map { "\($0.key)=\($0.value)" }.joined(separator: ";")
 
-		return "\(CLIFormat.escape)]1337;File=\(optionsString):\(base64)\(CLIFormat.bell)"
+		return "\(CLIFormat.osc)1337;File=\(optionsString):\(base64)\(CLIFormat.bell)"
 	}
 }
