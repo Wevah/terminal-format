@@ -10,6 +10,9 @@ let package = Package(
         .library(
             name: "CommandLineFormat",
             targets: ["CommandLineFormat"]),
+		.library(
+			name: "CommandLineImage",
+			targets: ["CommandLineImage"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -21,7 +24,10 @@ let package = Package(
         .target(
             name: "CommandLineFormat",
             dependencies: []),
-        .testTarget(
+		.target(
+			name: "CommandLineImage",
+			dependencies: ["CommandLineFormat"]),
+       .testTarget(
             name: "CommandLineFormatTests",
             dependencies: ["CommandLineFormat"]),
     ]
