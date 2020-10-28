@@ -152,7 +152,7 @@ public struct CLIFormat: Hashable {
 		case rapid = "6" // not widely supported
 
 		/// Disable blink.
-		case none = "25"
+		case off = "25"
 
 		public var debugDescription: String {
 			switch self {
@@ -160,13 +160,13 @@ public struct CLIFormat: Hashable {
 					return "blink"
 				case .rapid:
 					return "rapid blink"
-				case .none:
+				case .off:
 					return "no blink"
 			}
 		}
 
 		public init(booleanLiteral value: Bool) {
-			self = value ? .regular : .none
+			self = value ? .regular : .off
 		}
 
 	}
@@ -197,7 +197,7 @@ public struct CLIFormat: Hashable {
 		case dashed = "4:5"
 
 		/// No underline.
-		case none = "24"
+		case off = "24"
 
 		public var debugDescription: String {
 			let typeString: String
@@ -213,7 +213,7 @@ public struct CLIFormat: Hashable {
 					typeString = "dotted"
 				case .dashed:
 					typeString = "dashed"
-				case .none:
+				case .off:
 					typeString = "no"
 			}
 
@@ -221,7 +221,7 @@ public struct CLIFormat: Hashable {
 		}
 
 		public init(booleanLiteral value: Bool) {
-			self = value ? .single : .none
+			self = value ? .single : .off
 		}
 
 	}
