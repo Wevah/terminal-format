@@ -310,6 +310,9 @@ public extension CLIFormat {
 	/// Convenience for resetting all formatting.
 	static let reset: CLIFormat = CLIFormat(reset: true)
 
+	static let escape: String = "\u{001B}"
+	static let bell: String = "\u{0007}"
+
 }
 
 extension CLIFormat: CustomStringConvertible {
