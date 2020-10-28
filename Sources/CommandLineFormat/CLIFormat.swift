@@ -15,7 +15,7 @@ import Foundation
 ///	let green = CLIFormat.green
 ///	let redBackground = CLIFormat(backgroundColor: .red)
 ///	let blueBackgroundOnly = CLIFormat(backgroundColor: .blue, reset: true)
-///	print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four \(.reset) five")
+///	print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four\(.reset) five")
 ///	// Prints "one" in the default colors, "two" in green,
 ///	// "three" in green with a red background,
 ///	// "four" in the default foreground color with a blue background,
