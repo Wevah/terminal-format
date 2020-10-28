@@ -12,7 +12,7 @@ import ArgumentParser
 
 struct Example: ParsableCommand {
 
-	static let configuration = CommandConfiguration(subcommands: [Complex.self, ITermImage.self])
+	static let configuration = CommandConfiguration(subcommands: [Complex.self, Image.self])
 
 }
 

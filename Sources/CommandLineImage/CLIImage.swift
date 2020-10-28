@@ -104,7 +104,7 @@ public struct CLIImage {
 	/// - Returns: A new string representing the image in iTerm protocol format.
 	///
 	/// - Note:  The protocol's `inline` attribute is always enabled.
-	public func escapeString(name: String? = nil, width: Dimension? = nil, height: Dimension? = nil, preserveAspectRatio: Bool = true) -> String {
+	public func iTermEscaped(name: String? = nil, width: Dimension? = nil, height: Dimension? = nil, preserveAspectRatio: Bool = true) -> String {
 		var options = ["inline": "1"]
 
 		if let name = name {
@@ -124,5 +124,5 @@ public struct CLIImage {
 
 		return "\(CLIFormat.osc)1337;File=\(optionsString):\(base64)\(CLIFormat.bell)"
 	}
-	
+
 }
