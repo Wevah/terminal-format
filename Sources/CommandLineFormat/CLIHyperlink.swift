@@ -10,7 +10,7 @@ import Foundation
 /// A terminal hyperlink.
 ///
 /// Supported by iTerm and kitty.
-public struct CLIHyperlink: CustomStringConvertible {
+public struct CLIHyperlink: CustomStringConvertible, CustomDebugStringConvertible {
 
 	/// The URL linked to by the hyperlink.
 	var url: URL
@@ -25,5 +25,9 @@ public struct CLIHyperlink: CustomStringConvertible {
 		let idstring = id != nil ? "id=\(id!)" : ""
 		return "\(CLIFormat.escape)]8;\(idstring);\(url.absoluteString)\(CLIFormat.bell)\(self)\(CLIFormat.escape)]8;;\(CLIFormat.bell)"
 	}
-	
+
+	public var debugDescription: String {
+		return "CLIHyperlink: [url: \(url), string: \(string), id: \(id ?? "nil")]"
+	}
+
 }
