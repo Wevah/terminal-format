@@ -15,6 +15,9 @@ let package = Package(
 			targets: ["CommandLineImage"]),
 		.executable(name: "example", targets: ["Example"])
 	],
+	dependencies: [
+		.package(url: "https://github.com/apple/swift-argument-parser", from: "0.3.0")
+	],
 	targets: [
 		// Targets are the basic building blocks of a package. A target can define a module or a test suite.
 		// Targets can depend on other targets in this package, and on products in packages this package depends on.
@@ -26,7 +29,7 @@ let package = Package(
 			dependencies: ["CommandLineFormat"]),
 		.target(
 			name: "Example",
-			dependencies: ["CommandLineImage"]),
+			dependencies: ["CommandLineImage", .product(name: "ArgumentParser", package: "swift-argument-parser")]),
 		.testTarget(
 			name: "CommandLineFormatTests",
 			dependencies: ["CommandLineFormat"]),
