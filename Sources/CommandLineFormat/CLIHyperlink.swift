@@ -12,6 +12,12 @@ import Foundation
 /// Supported by iTerm and kitty.
 public struct CLIHyperlink: CustomStringConvertible, CustomDebugStringConvertible {
 
+	public init(url: URL, string: String, id: String? = nil) {
+		self.url = url
+		self.string = string
+		self.id = id
+	}
+
 	/// The URL linked to by the hyperlink.
 	var url: URL
 	/// The string content of the hyperlink.
@@ -23,7 +29,7 @@ public struct CLIHyperlink: CustomStringConvertible, CustomDebugStringConvertibl
 
 	public var description: String {
 		let idstring = id != nil ? "id=\(id!)" : ""
-		return "\(CLIFormat.escape)]8;\(idstring);\(url.absoluteString)\(CLIFormat.bell)\(self)\(CLIFormat.escape)]8;;\(CLIFormat.bell)"
+		return "\(CLIFormat.escape)]8;\(idstring);\(url.absoluteString)\(CLIFormat.bell)\(string)\(CLIFormat.escape)]8;;\(CLIFormat.bell)"
 	}
 
 	public var debugDescription: String {
