@@ -605,6 +605,10 @@ public extension CLIFormat {
 
 	static let defaultUnderlineColor = Self(underlineColor: .default)
 
+	static let bold = Self(bold: true)
+	static let faint = Self(faint: true)
+	static let italic = Self(italic: true)
+
 	static let underline = Self(underline: .single)
 	static let doubleUnderline = Self(underline:.double)
 	static let curlyUnderline = Self(underline: .curly)
