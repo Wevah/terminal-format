@@ -20,6 +20,7 @@ public struct CLIHyperlink: CustomStringConvertible, CustomDebugStringConvertibl
 
 	/// The URL linked to by the hyperlink.
 	var url: URL
+	
 	/// The string content of the hyperlink.
 	var string: String
 
@@ -29,7 +30,7 @@ public struct CLIHyperlink: CustomStringConvertible, CustomDebugStringConvertibl
 
 	public var description: String {
 		let idstring = id != nil ? "id=\(id!)" : ""
-		return "\(CLIFormat.escape)]8;\(idstring);\(url.absoluteString)\(CLIFormat.bell)\(string)\(CLIFormat.escape)]8;;\(CLIFormat.bell)"
+		return "\(CLIFormat.osc)8;\(idstring);\(url.absoluteString)\(CLIFormat.bell)\(string)\(CLIFormat.osc)8;;\(CLIFormat.bell)"
 	}
 
 	public var debugDescription: String {
