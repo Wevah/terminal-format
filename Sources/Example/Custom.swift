@@ -14,6 +14,7 @@ struct Custom: ParsableCommand {
 	@Flag var bold: Bool = false
 	@Flag var italic: Bool = false
 	@Flag var faint: Bool = false
+	@Option(transform: { URL(string: $0) }) var url: URL? = nil
 	@Option(
 		transform: { (string) -> CLIFormat.UnderlineStyle? in
 			switch string {
@@ -37,7 +38,16 @@ struct Custom: ParsableCommand {
 
 	func run() {
 		let format = CLIFormat(bold: bold, faint: faint, italic: italic, underline: underline)
-		print(text.joined(separator: " ").ansiFormatted(format: format))
+
+		let formatted = text.joined(separator: " ").ansiFormatted(format: format)
+
+		if let url = url {
+			let hyperlink = CLIHyperlink(url: url, string: formatted)
+
+			print(hyperlink)
+		} else {
+			print(formatted)
+		}
 	}
 
 }
