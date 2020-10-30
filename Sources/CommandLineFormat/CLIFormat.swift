@@ -184,11 +184,11 @@ public struct CLIFormat: Hashable {
 		/// iTerm to render no underline at all.
 		///
 		/// Will cause text to render in the wrong color in Terminal.app.
-		case double = "4:2" // "21""
+		case double = "4:2" // "21" / "4:2"
 
 		/// Curly underline.
 		///
-		/// Supported by iTerm 3.4+.
+		/// Supported by iTerm 3.4+ and kitty.
 		///
 		/// - Note: Will cause text to render in the wrong color in Terminal.app.
 		case curly = "4:3" // iTerm 3.4+
@@ -308,10 +308,10 @@ public struct CLIFormat: Hashable {
 
 	/// Reset all formatting.
 	///
-	/// Will be inserted into strings first, so any other properties will take effect.
+	/// Will be inserted into strings first, so any other set properties will take effect.
 	public var reset: Bool = false
 
-	/// Custom formatting sequences. Perhaps your terminal supports formatting escapes not supplied here?
+	/// Custom attribute sequences. Perhaps your terminal supports attributes not supplied here?
 	///
 	/// Applied after everything else.
 	public var custom: [String]?
@@ -423,15 +423,15 @@ extension CLIFormat: CustomStringConvertible {
 		}
 
 		if let foregroundColor = foregroundColor {
-			elements.append("color: \(String(reflecting: foregroundColor))")
+			elements.append("foreground color: \(String(reflecting: foregroundColor))")
 		}
 
 		if let backgroundColor = backgroundColor {
-			elements.append("color: \(String(reflecting: backgroundColor))")
+			elements.append("background color: \(String(reflecting: backgroundColor))")
 		}
 
 		if let underlineColor = underlineColor {
-			elements.append("color: \(String(reflecting: underlineColor))")
+			elements.append("underline color: \(String(reflecting: underlineColor))")
 		}
 
 		if bold {
