@@ -30,7 +30,7 @@ public struct CLIHyperlink: CustomStringConvertible, CustomDebugStringConvertibl
 
 	public var description: String {
 		let idstring = id != nil ? "id=\(id!)" : ""
-		return "\(CLIFormat.osc)8;\(idstring);\(url.absoluteString)\(CLIFormat.bell)\(string)\(CLIFormat.osc)8;;\(CLIFormat.bell)"
+		return "\(CLIControlSequence.osc)8;\(idstring);\(url.absoluteString)\(CLIControlSequence.bell)\(string)\(CLIControlSequence.osc)8;;\(CLIControlSequence.bell)"
 	}
 
 	public var debugDescription: String {

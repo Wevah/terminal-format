@@ -7,47 +7,27 @@
 
 import Foundation
 
-/// A struct for easy standard ANSI terminal color/formatting codes.
+/// An enum for standard ANSI terminal color/formatting codes.
 ///
 /// Examples (assuming output is to an ANSI-compatible terminal):
 ///
 /// ```
-/// let format = CLIFormat(foregroundColor: .brightGreen, backgroundColor: .gray)
+/// let attributes: [CLIAttribute] = [.brightGreen, .backgroundColor(.gray)]
 /// print("hello".ansiFormatted(format: format))
 /// // Prints "hello" in bright green text with a gray background.
 /// ```
 ///
 /// ```
-///	let green = CLIFormat.green
-///	let redBackground = CLIFormat(backgroundColor: .red)
-///	let blueBackgroundOnly = CLIFormat(backgroundColor: .blue, reset: true)
+///	let green = [CLIAttribute.green]
+///	let redBackground: [CLIAttribute] = [.backgroundColor(.red)]
+///	let blueBackgroundOnly: [CLIAttribute] = [.reset, .backgroundColor: .blue]
 ///	print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four\(.reset) five")
 ///	// Prints "one" in the default colors, "two" in green,
 ///	// "three" in green with a red background,
 ///	// "four" in the default foreground color with a blue background,
 ///	// and finally "five" in the default colors.
 /// ```
-public struct CLIFormat: Hashable {
-
-	public init(foregroundColor: CLIFormat.Color? = nil, backgroundColor: CLIFormat.Color? = nil, underlineColor: CLIFormat.Color? = nil, bold: Bool = false, faint: Bool = false, normalIntensity: Bool = false, italic: Bool? = nil, underline: CLIFormat.UnderlineStyle? = nil, blink: CLIFormat.BlinkStyle? = nil, reverseVideo: Bool? = nil, conceal: Bool? = nil, crossOut: Bool? = nil, overline: Bool? = nil, superscript: Bool = false, subscript: Bool = false, reset: Bool = false, custom: [String]? = nil) {
-		self.foregroundColor = foregroundColor
-		self.backgroundColor = backgroundColor
-		self.underlineColor = underlineColor
-		self.bold = bold
-		self.faint = faint
-		self.normalIntensity = normalIntensity
-		self.italic = italic
-		self.underline = underline
-		self.blink = blink
-		self.reverseVideo = reverseVideo
-		self.conceal = conceal
-		self.crossOut = crossOut
-		self.overline = overline
-		self.superscript = superscript
-		self.subscript = `subscript`
-		self.reset = reset
-		self.custom = custom
-	}
+public enum CLIAttribute: Hashable {
 
 	/// A terminal color.
 	public struct Color: Hashable {
@@ -80,6 +60,7 @@ public struct CLIFormat: Hashable {
 		}
 
 		/// Initialize an ANSI 8-bit color.
+		///
 		/// - Parameter index: The index into the 8-bit color table.
 		public init(bits8 index: UInt8) {
 			type = .bits8(index)
@@ -161,7 +142,7 @@ public struct CLIFormat: Hashable {
 				case .rapid:
 					return "rapid blink"
 				case .off:
-					return "no blink"
+					return "blink off"
 			}
 		}
 
@@ -180,7 +161,7 @@ public struct CLIFormat: Hashable {
 		///
 		/// Not widely supported.
 		///
-		/// - Note: The standard specifies `21` for double underline, but that will cause
+		/// - Note: The ECMA-48 standard specifies `21` for double underline, but that will cause
 		/// iTerm to render no underline at all.
 		///
 		/// Will cause text to render in the wrong color in Terminal.app.
@@ -221,7 +202,7 @@ public struct CLIFormat: Hashable {
 				case .dashed:
 					typeString = "dashed"
 				case .off:
-					typeString = "no"
+					typeString = "off"
 			}
 
 			return "underline: \(typeString)"
@@ -234,264 +215,245 @@ public struct CLIFormat: Hashable {
 	}
 
 	/// The foreground color.
-	///
-	/// If `nil`, the previous color is not changed.
-	public var foregroundColor: Color?
+	case foregroundColor(Color)
 
 	/// The background color.
-	///
-	/// If `nil`, the previous color is not changed.
-	public var backgroundColor: Color?
+	case backgroundColor(Color)
 
 	/// The underline color.
 	///
-	/// If `nil`, the previous color is not changed.
-	///
 	/// Not widely supported.
-	public var underlineColor: Color?
+	case underlineColor(Color)
 
 	/// Enable bold text.
 	///
-	/// To disable, see `normalIntensity`.
-	public var bold: Bool = false
+	/// To disable, use `normalIntensity`.
+	case bold
 
 	/// Enable faint text.
 	///
-	/// To disable, see `normalIntensity`.
-	public var faint: Bool = false
+	/// To disable, use `normalIntensity`.
+	case faint
 
 	/// Normal intensity; disable `bold` and `faint`.
-	public var normalIntensity: Bool = false // also not bold or faint
+	case normalIntensity
 
 	/// Italic text.
-	///
-	/// If `nil`, the previous italic setting is not changed.
-	public var italic: Bool?
+	case italic(Bool)
 
 	/// Text underline style.
-	public var underline: UnderlineStyle?
+	case underline(UnderlineStyle)
 
 	/// Text blink style.
-	public var blink: BlinkStyle?
+	case blink(BlinkStyle)
 
 	/// Whether to reverse foreground and background colors.
-	///
-	/// If `nil`, the previous setting is unchanged.
-	public var reverseVideo: Bool?
+	case reverseVideo(Bool)
 
 	/// Whether to conceal text.
-	///
-	/// If `nil`, the previous setting is unchanged.
-	public var conceal: Bool?
+	case conceal(Bool)
 
 	/// Cross out text.
-	///
-	/// If `nil`, the previous setting is unchanged.
-	public var crossOut: Bool?
+	case crossOut(Bool)
 
 	/// Overline text.
 	///
-	/// If `nil`, the previous setting is unchanged.
-	///
 	/// Not widely supported.
-	public var overline: Bool?
+	case overline(Bool)
 
 	/// Superscript.
 	///
 	/// mintty; not in standard.
-	public var superscript: Bool = false
+	case superscript
 
 	/// Subscript.
 	///
 	/// mintty; not in standard.
-	public var `subscript`: Bool = false
+	case `subscript`
 
 	/// Reset all formatting.
-	///
-	/// Will be inserted into strings first, so any other set properties will take effect.
-	public var reset: Bool = false
+	case reset
 
-	/// Custom attribute sequences. Perhaps your terminal supports attributes not supplied here?
+	/// Custom attribute sequence.
 	///
-	/// Applied after everything else.
-	public var custom: [String]?
+	/// Perhaps your terminal supports attributes not supplied here?
+	///
+	/// For example, for some imaginary CSI sequence whose code is `321`:
+	///
+	/// ```
+	/// let customAttributes: [CLIAttribute] = [.custom("321")]
+	/// ```
+	case custom(String)
 
 }
 
-public extension CLIFormat {
-
-	/// Convenience for resetting all formatting.
-	static let reset: CLIFormat = CLIFormat(reset: true)
+public enum CLIControlSequence {
 
 	/// The escape character (`ESC`, `0x1b`).
-	static let escape: String = "\u{001B}"
+	public static let escape: String = "\u{001B}"
 
 	/// The bell character (`BEL`, `0x07`).
-	static let bell: String = "\u{0007}"
+	public static let bell: String = "\u{0007}"
 
 	/// Control Sequence Introducer, `ESC` + `[`.
-	static let csi: String = "\(escape)["
+	public static let csi: String = "\(escape)["
 
 	/// Operating System Command, `ESC` + `]`.
-	static let osc: String = "\(escape)]"
+	public static let osc: String = "\(escape)]"
 
 }
 
-extension CLIFormat: CustomStringConvertible {
+// Convenience properties.
+public extension CLIAttribute {
 
-	public var description: String {
-		var elements = [String]()
+	/// Convenience for a black foreground color.
+	static let black = Self.foregroundColor(.black)
+	/// Convenience for the a red foreground color
+	static let red = Self.foregroundColor(.red)
+	/// Convenience for the a green foreground color
+	static let green = Self.foregroundColor(.green)
+	/// Convenience for the a yellow foreground color
+	static let yellow = Self.foregroundColor(.yellow)
+	/// Convenience for the a blue foreground color
+	static let blue = Self.foregroundColor(.blue)
+	/// Convenience for the a magenta foreground color
+	static let magenta = Self.foregroundColor(.magenta)
+	/// Convenience for the a cyan foreground color
+	static let cyan = Self.foregroundColor(.cyan)
+	/// Convenience for the a white foreground color
+	static let white = Self.foregroundColor(.white)
 
-		// Make sure reset is always first.
-		if reset {
-			elements.append("0")
+	/// Convenience for the standard gray ("bright black") color
+	static let gray = Self.foregroundColor(.gray)
+	/// Convenience for the a bright red foreground color
+	static let brightRed = Self.foregroundColor(.brightRed)
+	/// Convenience for the a bright green foreground color
+	static let brightGreen = Self.foregroundColor(.brightGreen)
+	/// Convenience for the a bright yellow foreground color
+	static let brightYellow = Self.foregroundColor(.brightYellow)
+	/// Convenience for the a bright blue foreground color
+	static let brightBlue = Self.foregroundColor(.brightBlue)
+	/// Convenience for the a bright magenta foreground color
+	static let brightMagenta = Self.foregroundColor(.brightMagenta)
+	/// Convenience for the a bright cyan foreground color
+	static let brightCyan = Self.foregroundColor(.brightCyan)
+	/// Convenience for the a bright white foreground color
+	static let brightWhite = Self.foregroundColor(.brightWhite)
+
+	/// Convenience for the default foreground color.
+	static let defaultForegroundColor = Self.foregroundColor(.default)
+
+	/// Convenience for enabling italics.
+	static let italic = Self.italic(true)
+
+	/// Convenience for single underline.
+	static let underline = Self.underline(.single)
+
+	/// Convenience for regular blink.
+	static let blink = Self.blink(.regular)
+
+
+}
+
+public extension CLIAttribute {
+
+	var escapeCode: String {
+		switch self {
+			case .reset:
+				return "0"
+
+			case let .foregroundColor(color):
+				return color.foregroundDescription
+			case let .backgroundColor(color):
+				return color.backgroundDescription
+			case let .underlineColor(color):
+				return color.underlineDescription
+			case .bold:
+				return "1"
+			case .faint:
+				return "2"
+			case let .italic(value):
+				return value ? "3" : "23"
+			case let .underline(style):
+				return style.rawValue
+			case let .blink(style):
+				return style.rawValue
+			case let .reverseVideo(value):
+				return value ? "7" : "27"
+			case let .conceal(value):
+				return value ? "8" : "28"
+			case let .crossOut(value):
+				return value ? "9" : "29"
+			case .normalIntensity:
+				return "22"
+			case let .overline(value):
+				return value ? "53" : "55"
+			case .superscript:
+				return "73"
+			case .subscript:
+				return "74"
+
+			case let .custom(value):
+				return value
 		}
-
-		if let foregroundColor = foregroundColor {
-			elements.append(foregroundColor.foregroundDescription)
-		}
-
-		if let backgroundColor = backgroundColor {
-			elements.append(backgroundColor.backgroundDescription)
-		}
-
-		if let underlineColor = underlineColor {
-			elements.append(underlineColor.underlineDescription)
-		}
-
-		if bold {
-			elements.append("1")
-		}
-
-		if faint {
-			elements.append("2")
-		}
-
-		if let italic = italic {
-			elements.append(italic ? "3" : "23")
-		}
-
-		if let underline = underline {
-			elements.append(underline.rawValue)
-		}
-
-		if let blink = blink {
-			elements.append(blink.rawValue)
-		}
-
-		if let reverseVideo = reverseVideo {
-			elements.append(reverseVideo ? "7" : "27")
-		}
-
-		if let conceal = conceal {
-			elements.append(conceal ? "8" : "28")
-		}
-
-		if let crossOut = crossOut {
-			elements.append(crossOut ? "9" : "29")
-		}
-
-		if normalIntensity {
-			elements.append("22")
-		}
-
-		if let overline = overline {
-			elements.append(overline ? "53" : "55")
-		}
-
-		if superscript {
-			elements.append("73")
-		}
-
-		if `subscript` {
-			elements.append("74")
-		}
-
-		if let custom = custom {
-			elements.append(contentsOf: custom)
-		}
-
-		return "\(Self.csi)\(elements.joined(separator: ";"))m"
 	}
+
+}
+
+extension CLIAttribute: CustomDebugStringConvertible {
 
 	public var debugDescription: String {
-		var elements = [String]()
+		switch self {
+			case .reset:
+				return "reset"
 
-		// Make sure reset is always first.
-		if reset {
-			elements.append("reset all")
+			case let .foregroundColor(color):
+				return "foreground color: \(String(reflecting: color))"
+			case let .backgroundColor(color):
+				return "background color: \(String(reflecting: color))"
+			case let .underlineColor(color):
+				return "underline color: \(String(reflecting: color))"
+			case .bold:
+				return "bold"
+			case .faint:
+				return "faint"
+			case let .italic(value):
+				return value ? "italic" : "italic off"
+			case let .underline(style):
+				return "underline: \(String(reflecting: style))"
+			case let .blink(style):
+				return "blink: \(String(reflecting: style))"
+			case let .reverseVideo(value):
+				return value ? "reversed video" : "reversed video off"
+			case let .conceal(value):
+				return value ? "conceal" : "conceal off"
+			case let .crossOut(value):
+				return value ? "cross out" : "cross out off"
+			case .normalIntensity:
+				return "normal intensity"
+			case let .overline(value):
+				return value ? "overline" : "overline off"
+			case .superscript:
+				return "superscript"
+			case .subscript:
+				return "subscript"
+
+			case let .custom(value):
+				return "custom: \(value)"
 		}
-
-		if let foregroundColor = foregroundColor {
-			elements.append("foreground color: \(String(reflecting: foregroundColor))")
-		}
-
-		if let backgroundColor = backgroundColor {
-			elements.append("background color: \(String(reflecting: backgroundColor))")
-		}
-
-		if let underlineColor = underlineColor {
-			elements.append("underline color: \(String(reflecting: underlineColor))")
-		}
-
-		if bold {
-			elements.append("bold")
-		}
-
-		if faint {
-			elements.append("faint")
-		}
-
-		if let italic = italic {
-			elements.append(italic ? "italic" : "no italic")
-		}
-
-		if let underline = underline {
-			elements.append(String(reflecting: underline))
-		}
-
-		if let blink = blink {
-			elements.append(String(reflecting: blink))
-		}
-
-		if let reverseVideo = reverseVideo {
-			elements.append(reverseVideo ? "reverse video" : "no reverse video")
-		}
-
-		if let conceal = conceal {
-			elements.append(conceal ? "conceal" : "no conceal")
-		}
-
-		if let crossOut = crossOut {
-			elements.append(crossOut ? "cross out" : "no cross out")
-		}
-
-		if normalIntensity {
-			elements.append("normal intensity")
-		}
-
-		if let overline = overline {
-			elements.append(overline ? "overline" : "no overline")
-		}
-
-		if superscript {
-			elements.append("superscript")
-		}
-
-		if `subscript` {
-			elements.append("subscript")
-		}
-
-		if let custom = custom {
-			elements.append("custom: \(custom)")
-		}
-
-		return "CLIFormat: [\(elements.joined(separator: ", "))]"
 	}
 
 }
 
-public typealias CLIColor = CLIFormat.Color
+extension Array where Element == CLIAttribute {
+
+	var ansiEscaped: String {
+		return "\(CLIControlSequence.csi)\(self.map { $0.escapeCode }.joined(separator: ";"))m"
+	}
+
+}
+
+public typealias CLIColor = CLIAttribute.Color
 
 private extension CLIColor {
 
@@ -568,92 +530,107 @@ extension CLIColor: CustomDebugStringConvertible {
 }
 
 /// Convenience properties.
-public extension CLIFormat {
+public extension Array where Element == CLIAttribute {
 
-	static let black = Self(foregroundColor: .black)
-	static let red = Self(foregroundColor: .red)
-	static let green = Self(foregroundColor: .green)
-	static let yellow = Self(foregroundColor: .yellow)
-	static let blue = Self(foregroundColor: .blue)
-	static let magenta = Self(foregroundColor: .magenta)
-	static let cyan = Self(foregroundColor: .cyan)
-	static let white = Self(foregroundColor: .white)
+	static let reset: [CLIAttribute] = [.reset]
 
-	static let gray = Self(foregroundColor: .gray) // "Bright Black"
-	static let brightRed = Self(foregroundColor: .brightRed)
-	static let brightGreen = Self(foregroundColor: .brightGreen)
-	static let brightYellow = Self(foregroundColor: .brightYellow)
-	static let brightBlue = Self(foregroundColor: .brightBlue)
-	static let brightMagenta = Self(foregroundColor: .brightMagenta)
-	static let brightCyan = Self(foregroundColor: .brightCyan)
-	static let brightWhite = Self(foregroundColor: .brightWhite)
+	static let black: Self = [.foregroundColor(.black)]
+	static let red: Self = [.foregroundColor(.red)]
+	static let green: Self = [.foregroundColor(.green)]
+	static let yellow: Self = [.foregroundColor(.yellow)]
+	static let blue: Self = [.foregroundColor(.blue)]
+	static let magenta: Self = [.foregroundColor(.magenta)]
+	static let cyan: Self = [.foregroundColor(.cyan)]
+	static let white: Self = [.foregroundColor(.white)]
 
-	static func foregroundColor(index: UInt8) -> CLIFormat {
-		return Self(foregroundColor: Color(bits8: index))
+	static let gray: Self = [.foregroundColor(.gray)] // "Bright Black"
+	static let brightRed: Self = [.foregroundColor(.brightRed)]
+	static let brightGreen: Self = [.foregroundColor(.brightGreen)]
+	static let brightYellow: Self = [.foregroundColor(.brightYellow)]
+	static let brightBlue: Self = [.foregroundColor(.brightBlue)]
+	static let brightMagenta: Self = [.foregroundColor(.brightMagenta)]
+	static let brightCyan: Self = [.foregroundColor(.brightCyan)]
+	static let brightWhite: Self = [.foregroundColor(.brightWhite)]
+
+	static func foregroundColor(index: UInt8) -> [CLIAttribute] {
+		return [.foregroundColor(CLIColor(bits8: index))]
 	}
 
-	static func foregroundColor(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat {
-		return Self(foregroundColor: Color(red: red, green: green, blue: blue))
+	static func foregroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
+		return [.foregroundColor(CLIColor(red: red, green: green, blue: blue))]
 	}
 
-	static let defaultForegroundColor = Self(foregroundColor: .default)
+	static let defaultForegroundColor: Self = [.foregroundColor(.default)]
 
-	static func backgroundColor(index: UInt8) -> CLIFormat {
-		return Self(backgroundColor: Color(bits8: index))
+	static func backgroundColor(index: UInt8) -> [CLIAttribute] {
+		return [.backgroundColor(CLIColor(bits8: index))]
 	}
 
-	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat {
-		return Self(backgroundColor: Color(red: red, green: green, blue: blue))
+	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
+		return [.backgroundColor(CLIColor(red: red, green: green, blue: blue))]
 	}
 
-	static let defaultBackgroundColor = Self(backgroundColor :.default)
+	static let defaultBackgroundColor: Self = [.backgroundColor(.default)]
 
-	static func underlineColor(index: UInt8) -> CLIFormat {
-		return Self(underlineColor: Color(bits8: index))
+	static func underlineColor(index: UInt8) -> [CLIAttribute] {
+		return [.underlineColor(CLIColor(bits8: index))]
 	}
 
-	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> CLIFormat {
-		return Self(underlineColor: Color(red: red, green: green, blue: blue))
+	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
+		return [.underlineColor(CLIColor(red: red, green: green, blue: blue))]
 	}
 
-	static let defaultUnderlineColor = Self(underlineColor: .default)
+	static let defaultUnderlineColor: Self = [.underlineColor(.default)]
 
-	static let bold = Self(bold: true)
-	static let faint = Self(faint: true)
-	static let italic = Self(italic: true)
+	static let bold: Self = [.bold]
+	static let faint: Self = [.faint]
+	static let italic: Self = [.italic(true)]
 
-	static let underline = Self(underline: .single)
-	static let doubleUnderline = Self(underline:.double)
-	static let curlyUnderline = Self(underline: .curly)
+	static let underline: Self = [.underline(.single)]
+	static let doubleUnderline: Self = [.underline(.double)]
+	static let curlyUnderline: Self = [.underline(.curly)]
 
 	/// Convenience property for regular blink.
-	static let blink = Self(blink: true)
+	static let blink: Self = [.blink(.regular)]
 
 	/// Convenience property for rapid blink. Not widely supported.
-	static let rapidBlink = Self(blink: .rapid)
+	static let rapidBlink: Self = [.blink(.rapid)]
 
 }
 
 public extension DefaultStringInterpolation {
 
 	/// Append a formatted string.
+	///
 	/// - Parameters:
 	///   - string: The string to format.
-	///   - format: The formatting object. If `nil`, no formatting will be applied.
-	mutating func appendInterpolation<T>(_ value: T, format: CLIFormat?) where T: CustomStringConvertible {
-		if let format = format {
-			self.appendLiteral("\(format)\(value)\(.reset)")
+	///   - attributes: The attributes to apply. If `nil`, no attributes will be applied.
+	mutating func appendInterpolation<T>(_ value: T, attributes: [CLIAttribute]?) {
+		if let attributes = attributes, attributes.count != 0 {
+			self.appendInterpolation(attributes)
+			self.appendInterpolation(value)
+			self.appendInterpolation(.reset)
 		} else {
 			self.appendInterpolation(value)
 		}
 	}
 
 	/// Append formatting escapes.
+	///
 	/// - Parameters:
-	///   - format: The formatting object.
-	mutating func appendInterpolation(_ format: CLIFormat?) {
-		guard let format = format else { return }
-		self.appendLiteral(String(describing: format))
+	///   - attributes: The attributes to apply.
+	mutating func appendInterpolation(_ attributes: [CLIAttribute]) {
+		guard attributes.count != 0 else { return }
+		self.appendLiteral(attributes.ansiEscaped)
+	}
+
+	/// Append formatting escapes.
+	///
+	/// - Parameters:
+	///   - attributes: The attributes to apply. If `nil`, no attributes are set.
+	mutating func appendInterpolation(_ attributes: [CLIAttribute]?) {
+		guard let attributes = attributes else { return }
+		self.appendInterpolation(attributes)
 	}
 
 }
@@ -664,8 +641,8 @@ public extension StringProtocol {
 	/// - Parameter format: The format to use.
 	/// - Returns: A new string with escape sequence described by `format` prepended,
 	/// and the `.reset` escape sequence appended.
-	func ansiFormatted(format: CLIFormat) -> String {
-		return "\(self, format: format)"
+	func ansiFormatted(attributes: [CLIAttribute]) -> String {
+		return "\(self, attributes: attributes)"
 	}
 
 }
