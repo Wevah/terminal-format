@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension CLIAttribute {
+public extension CommandLine {
 
 	/// Whether the terminal emulator supports 24-bit color, determined by the contents of the `COLORTERM`
 	/// environment variable.
@@ -19,6 +19,7 @@ public extension CLIAttribute {
 	}
 
 	/// Sets the terminal window title.
+	/// 
 	/// - Parameter title: The new title. Pass an empty string to reset.
 	static func setWindowTitle(_ title: String) {
 		print("\(CLIControlSequence.osc)0;\(title)\(CLIControlSequence.bell)")
