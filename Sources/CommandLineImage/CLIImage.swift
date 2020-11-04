@@ -47,6 +47,9 @@ public struct CLIImage {
 
 		if let rep = rep as? NSPDFImageRep {
 			data = rep.pdfRepresentation
+		} else if let rep = rep as? NSBitmapImageRep {
+			guard let pngData = rep.representation(using: .png, properties: [:]) else { return nil }
+			data = pngData
 		} else {
 			guard let tiffData = image.tiffRepresentation else { return nil }
 			data = tiffData
@@ -69,7 +72,7 @@ public struct CLIImage {
 	}
 
 	/// A CLIImage dimension.
-	public enum Dimension: CustomStringConvertible {
+	public enum Dimension: CustomStringConvertible, ExpressibleByIntegerLiteral {
 
 		/// Dimension measured in terminal cells.
 		case cells(Int)
@@ -89,6 +92,10 @@ public struct CLIImage {
 				case let .percent(value):
 					return "\(value)%"
 			}
+		}
+
+		public init(integerLiteral: Int) {
+			self = .cells(integerLiteral)
 		}
 
 	}
@@ -122,7 +129,19 @@ public struct CLIImage {
 
 		let optionsString = options.map { "\($0.key)=\($0.value)" }.joined(separator: ";")
 
-		return "\(CLIControlSequence.osc)1337;File=\(optionsString):\(base64)\(CLIControlSequence.bell)"
+		return "\(.osc)1337;File=\(optionsString):\(base64)\(.bell)"
+	}
+
+}
+
+public extension DefaultStringInterpolation {
+
+	mutating func appendInterpolation(_ image: CLIImage, name: String? = nil, width: CLIImage.Dimension? = nil, height: CLIImage.Dimension? = nil, preserveAspectRatio: Bool = true) {
+		self.appendLiteral(image.iTermEscaped(name: name, width: width, height: height, preserveAspectRatio: preserveAspectRatio))
+	}
+
+	mutating func appendInterpolation(_ image: CLIImage) {
+		self.appendInterpolation(image, height: 1)
 	}
 
 }
