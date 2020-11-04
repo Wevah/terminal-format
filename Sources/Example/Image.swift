@@ -19,6 +19,8 @@ struct Image: ParsableCommand {
 		print("Image example:")
 		let image = CLIImage(base64String: Self.testImage)
 		print(image.iTermEscaped())
+		print("")
+		print("inline: \(image)")
 	}
 
 }
