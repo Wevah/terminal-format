@@ -11,12 +11,20 @@ import Foundation
 ///
 /// Examples (assuming output is to an ANSI-compatible terminal):
 ///
+/// String method:
 /// ```
-/// let attributes: [CLIAttribute] = [.brightGreen, .backgroundColor(.gray)]
-/// print("hello".ansiFormatted(format: format))
+/// let attributes: [CLIAttribute] = [.brightGreen, .background(.gray)]
+/// print("hello".ansiFormatted(attributes: attributes))
 /// // Prints "hello" in bright green text with a gray background.
 /// ```
 ///
+/// Inline interpolation:
+/// ```
+/// print("This is \("red", attributes: [.red])")
+/// // Prints "red" in red.
+/// ```
+///
+/// Complex interpolation, verbose:
 /// ```
 ///	let green = [CLIAttribute.green]
 ///	let redBackground: [CLIAttribute] = [.backgroundColor(.red)]
@@ -130,7 +138,9 @@ public enum CLIAttribute: Hashable {
 		case regular = "5"
 
 		/// Rapid blink frequency.
-		case rapid = "6" // not widely supported
+		///
+		/// Not widely supported.
+		case rapid = "6"
 
 		/// Disable blink.
 		case off = "25"
@@ -287,19 +297,33 @@ public enum CLIAttribute: Hashable {
 
 }
 
-public enum CLIControlSequence {
+public struct CLIControlSequence {
+
+	fileprivate let string: String
+
+	fileprivate init(_ string: String) {
+		self.string = string
+	}
 
 	/// The escape character (`ESC`, `0x1b`).
-	public static let escape: String = "\u{001B}"
+	public static let escape = Self("\u{001B}")
 
 	/// The bell character (`BEL`, `0x07`).
-	public static let bell: String = "\u{0007}"
+	public static let bell = Self("\u{0007}")
 
 	/// Control Sequence Introducer, `ESC` + `[`.
-	public static let csi: String = "\(escape)["
+	public static let csi = Self("\(escape)[")
 
 	/// Operating System Command, `ESC` + `]`.
-	public static let osc: String = "\(escape)]"
+	public static let osc = Self("\(escape)]")
+
+}
+
+public extension DefaultStringInterpolation {
+
+	mutating func appendInterpolation(_ controlSequence: CLIControlSequence) {
+		self.appendLiteral(controlSequence.string)
+	}
 
 }
 
@@ -352,7 +376,14 @@ public extension CLIAttribute {
 	/// Convenience for regular blink.
 	static let blink = Self.blink(.regular)
 
+	static func color(_ color: Color) -> Self {
+		return .foregroundColor(color)
+	}
 
+	static func background(_ color: Color) -> Self {
+		return .backgroundColor(color)
+	}
+	
 }
 
 public extension CLIAttribute {
@@ -445,12 +476,12 @@ extension CLIAttribute: CustomDebugStringConvertible {
 
 }
 
-extension Array where Element == CLIAttribute {
+extension Array: TerminalPrintable where Element == CLIAttribute {
 
-	var ansiEscaped: String {
+	public var escapeSequence: String {
 		return "\(CLIControlSequence.csi)\(self.map { $0.escapeCode }.joined(separator: ";"))m"
-	}
 
+	}
 }
 
 public typealias CLIColor = CLIAttribute.Color
@@ -529,73 +560,73 @@ extension CLIColor: CustomDebugStringConvertible {
 
 }
 
-/// Convenience properties.
+///// Convenience properties.
 public extension Array where Element == CLIAttribute {
-
+//
 	static let reset: [CLIAttribute] = [.reset]
-
-	static let black: Self = [.foregroundColor(.black)]
-	static let red: Self = [.foregroundColor(.red)]
-	static let green: Self = [.foregroundColor(.green)]
-	static let yellow: Self = [.foregroundColor(.yellow)]
-	static let blue: Self = [.foregroundColor(.blue)]
-	static let magenta: Self = [.foregroundColor(.magenta)]
-	static let cyan: Self = [.foregroundColor(.cyan)]
-	static let white: Self = [.foregroundColor(.white)]
-
-	static let gray: Self = [.foregroundColor(.gray)] // "Bright Black"
-	static let brightRed: Self = [.foregroundColor(.brightRed)]
-	static let brightGreen: Self = [.foregroundColor(.brightGreen)]
-	static let brightYellow: Self = [.foregroundColor(.brightYellow)]
-	static let brightBlue: Self = [.foregroundColor(.brightBlue)]
-	static let brightMagenta: Self = [.foregroundColor(.brightMagenta)]
-	static let brightCyan: Self = [.foregroundColor(.brightCyan)]
-	static let brightWhite: Self = [.foregroundColor(.brightWhite)]
-
-	static func foregroundColor(index: UInt8) -> [CLIAttribute] {
-		return [.foregroundColor(CLIColor(bits8: index))]
-	}
-
-	static func foregroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
-		return [.foregroundColor(CLIColor(red: red, green: green, blue: blue))]
-	}
-
-	static let defaultForegroundColor: Self = [.foregroundColor(.default)]
-
-	static func backgroundColor(index: UInt8) -> [CLIAttribute] {
-		return [.backgroundColor(CLIColor(bits8: index))]
-	}
-
-	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
-		return [.backgroundColor(CLIColor(red: red, green: green, blue: blue))]
-	}
-
-	static let defaultBackgroundColor: Self = [.backgroundColor(.default)]
-
-	static func underlineColor(index: UInt8) -> [CLIAttribute] {
-		return [.underlineColor(CLIColor(bits8: index))]
-	}
-
-	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
-		return [.underlineColor(CLIColor(red: red, green: green, blue: blue))]
-	}
-
-	static let defaultUnderlineColor: Self = [.underlineColor(.default)]
-
-	static let bold: Self = [.bold]
-	static let faint: Self = [.faint]
-	static let italic: Self = [.italic(true)]
-
-	static let underline: Self = [.underline(.single)]
-	static let doubleUnderline: Self = [.underline(.double)]
-	static let curlyUnderline: Self = [.underline(.curly)]
-
-	/// Convenience property for regular blink.
-	static let blink: Self = [.blink(.regular)]
-
-	/// Convenience property for rapid blink. Not widely supported.
-	static let rapidBlink: Self = [.blink(.rapid)]
-
+//
+//	static let black: Self = [.foregroundColor(.black)]
+//	static let red: Self = [.foregroundColor(.red)]
+//	static let green: Self = [.foregroundColor(.green)]
+//	static let yellow: Self = [.foregroundColor(.yellow)]
+//	static let blue: Self = [.foregroundColor(.blue)]
+//	static let magenta: Self = [.foregroundColor(.magenta)]
+//	static let cyan: Self = [.foregroundColor(.cyan)]
+//	static let white: Self = [.foregroundColor(.white)]
+//
+//	static let gray: Self = [.foregroundColor(.gray)] // "Bright Black"
+//	static let brightRed: Self = [.foregroundColor(.brightRed)]
+//	static let brightGreen: Self = [.foregroundColor(.brightGreen)]
+//	static let brightYellow: Self = [.foregroundColor(.brightYellow)]
+//	static let brightBlue: Self = [.foregroundColor(.brightBlue)]
+//	static let brightMagenta: Self = [.foregroundColor(.brightMagenta)]
+//	static let brightCyan: Self = [.foregroundColor(.brightCyan)]
+//	static let brightWhite: Self = [.foregroundColor(.brightWhite)]
+//
+//	static func foregroundColor(index: UInt8) -> [CLIAttribute] {
+//		return [.foregroundColor(CLIColor(bits8: index))]
+//	}
+//
+//	static func foregroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
+//		return [.foregroundColor(CLIColor(red: red, green: green, blue: blue))]
+//	}
+//
+//	static let defaultForegroundColor: Self = [.foregroundColor(.default)]
+//
+//	static func backgroundColor(index: UInt8) -> [CLIAttribute] {
+//		return [.backgroundColor(CLIColor(bits8: index))]
+//	}
+//
+//	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
+//		return [.backgroundColor(CLIColor(red: red, green: green, blue: blue))]
+//	}
+//
+//	static let defaultBackgroundColor: Self = [.backgroundColor(.default)]
+//
+//	static func underlineColor(index: UInt8) -> [CLIAttribute] {
+//		return [.underlineColor(CLIColor(bits8: index))]
+//	}
+//
+//	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
+//		return [.underlineColor(CLIColor(red: red, green: green, blue: blue))]
+//	}
+//
+//	static let defaultUnderlineColor: Self = [.underlineColor(.default)]
+//
+//	static let bold: Self = [.bold]
+//	static let faint: Self = [.faint]
+//	static let italic: Self = [.italic(true)]
+//
+//	static let underline: Self = [.underline(.single)]
+//	static let doubleUnderline: Self = [.underline(.double)]
+//	static let curlyUnderline: Self = [.underline(.curly)]
+//
+//	/// Convenience property for regular blink.
+//	static let blink: Self = [.blink(.regular)]
+//
+//	/// Convenience property for rapid blink. Not widely supported.
+//	static let rapidBlink: Self = [.blink(.rapid)]
+//
 }
 
 public extension DefaultStringInterpolation {
@@ -609,7 +640,7 @@ public extension DefaultStringInterpolation {
 		if let attributes = attributes, attributes.count != 0 {
 			self.appendInterpolation(attributes)
 			self.appendInterpolation(value)
-			self.appendInterpolation(.reset)
+			self.appendInterpolation([.reset])
 		} else {
 			self.appendInterpolation(value)
 		}
@@ -621,7 +652,7 @@ public extension DefaultStringInterpolation {
 	///   - attributes: The attributes to apply.
 	mutating func appendInterpolation(_ attributes: [CLIAttribute]) {
 		guard attributes.count != 0 else { return }
-		self.appendLiteral(attributes.ansiEscaped)
+		self.appendLiteral(attributes.escapeSequence)
 	}
 
 	/// Append formatting escapes.
@@ -634,15 +665,15 @@ public extension DefaultStringInterpolation {
 	}
 
 }
-
-public extension StringProtocol {
-
-	/// Formats a string with ANSI escape codes and a reset at the end.
-	/// - Parameter format: The format to use.
-	/// - Returns: A new string with escape sequence described by `format` prepended,
-	/// and the `.reset` escape sequence appended.
-	func ansiFormatted(attributes: [CLIAttribute]) -> String {
-		return "\(self, attributes: attributes)"
-	}
-
-}
+//
+//public extension StringProtocol {
+//
+//	/// Formats a string with ANSI escape codes and a reset at the end.
+//	/// - Parameter format: The format to use.
+//	/// - Returns: A new string with escape sequence described by `format` prepended,
+//	/// and the `.reset` escape sequence appended.
+//	func ansiFormatted(attributes: [CLIAttribute]) -> String {
+//		return "\(self, attributes: attributes)"
+//	}
+//
+//}
