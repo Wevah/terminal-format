@@ -10,7 +10,7 @@ import Foundation
 /// A terminal hyperlink.
 ///
 /// Supported by iTerm and kitty.
-public struct CLIHyperlink: CustomStringConvertible, CustomDebugStringConvertible {
+public struct CLIHyperlink: CustomDebugStringConvertible {
 
 	public init(url: URL, string: String, id: String? = nil) {
 		self.url = url
@@ -19,22 +19,49 @@ public struct CLIHyperlink: CustomStringConvertible, CustomDebugStringConvertibl
 	}
 
 	/// The URL linked to by the hyperlink.
-	var url: URL
+	public var url: URL
 	
 	/// The string content of the hyperlink.
-	var string: String
+	public var string: String
 
 	/// An optional identifier. Multiple links with the same ID are treated as the same link
 	/// for the purpose of, e.g., hover effects.
-	var id: String?
-
-	public var description: String {
-		let idstring = id != nil ? "id=\(id!)" : ""
-		return "\(CLIControlSequence.osc)8;\(idstring);\(url.absoluteString)\(CLIControlSequence.bell)\(string)\(CLIControlSequence.osc)8;;\(CLIControlSequence.bell)"
-	}
+	public var id: String?
 
 	public var debugDescription: String {
 		return "CLIHyperlink: [url: \(url), string: \(string), id: \(id ?? "nil")]"
+	}
+
+	var startSequence: String {
+		let idstring = id != nil ? "id=\(id!)" : ""
+		return "\(.osc)8;\(idstring);\(url.absoluteString)\(.bell)"
+	}
+
+	var endSequence: String {
+		return "\(.osc)8;;\(.bell)"
+	}
+
+}
+
+extension CLIHyperlink: TerminalPrintable {
+
+	public var escapeSequence: String {
+		return "\(startSequence)\(string)\(endSequence)"
+	}
+
+}
+
+public extension DefaultStringInterpolation {
+
+	mutating func appendInterpolation(_ string: String, link: CLIHyperlink) {
+		var copy = link
+		copy.string = string
+		appendInterpolation(copy)
+	}
+
+	mutating func appendInterpolation(_ string: String, url: URL, id: String? = nil) {
+		let link = CLIHyperlink(url: url, string: string, id: id)
+		appendInterpolation(link)
 	}
 
 }
