@@ -530,73 +530,9 @@ extension TerminalColor: CustomDebugStringConvertible {
 
 }
 
-// Convenience properties.
 public extension Array where Element == TerminalAttribute {
-//
+
 	static let reset: [TerminalAttribute] = [.reset]
-//
-//	static let black: Self = [.foregroundColor(.black)]
-//	static let red: Self = [.foregroundColor(.red)]
-//	static let green: Self = [.foregroundColor(.green)]
-//	static let yellow: Self = [.foregroundColor(.yellow)]
-//	static let blue: Self = [.foregroundColor(.blue)]
-//	static let magenta: Self = [.foregroundColor(.magenta)]
-//	static let cyan: Self = [.foregroundColor(.cyan)]
-//	static let white: Self = [.foregroundColor(.white)]
-//
-//	static let gray: Self = [.foregroundColor(.gray)] // "Bright Black"
-//	static let brightRed: Self = [.foregroundColor(.brightRed)]
-//	static let brightGreen: Self = [.foregroundColor(.brightGreen)]
-//	static let brightYellow: Self = [.foregroundColor(.brightYellow)]
-//	static let brightBlue: Self = [.foregroundColor(.brightBlue)]
-//	static let brightMagenta: Self = [.foregroundColor(.brightMagenta)]
-//	static let brightCyan: Self = [.foregroundColor(.brightCyan)]
-//	static let brightWhite: Self = [.foregroundColor(.brightWhite)]
-//
-//	static func foregroundColor(index: UInt8) -> [TerminalAttribute] {
-//		return [.foregroundColor(TerminalColor(bits8: index))]
-//	}
-//
-//	static func foregroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [TerminalAttribute] {
-//		return [.foregroundColor(TerminalColor(red: red, green: green, blue: blue))]
-//	}
-//
-//	static let defaultForegroundColor: Self = [.foregroundColor(.default)]
-//
-//	static func backgroundColor(index: UInt8) -> [TerminalAttribute] {
-//		return [.backgroundColor(TerminalColor(bits8: index))]
-//	}
-//
-//	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [TerminalAttribute] {
-//		return [.backgroundColor(TerminalColor(red: red, green: green, blue: blue))]
-//	}
-//
-//	static let defaultBackgroundColor: Self = [.backgroundColor(.default)]
-//
-//	static func underlineColor(index: UInt8) -> [TerminalAttribute] {
-//		return [.underlineColor(TerminalColor(bits8: index))]
-//	}
-//
-//	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> [TerminalAttribute] {
-//		return [.underlineColor(TerminalColor(red: red, green: green, blue: blue))]
-//	}
-//
-//	static let defaultUnderlineColor: Self = [.underlineColor(.default)]
-//
-//	static let bold: Self = [.bold]
-//	static let faint: Self = [.faint]
-//	static let italic: Self = [.italic(true)]
-//
-//	static let underline: Self = [.underline(.single)]
-//	static let doubleUnderline: Self = [.underline(.double)]
-//	static let curlyUnderline: Self = [.underline(.curly)]
-//
-//	/// Convenience property for regular blink.
-//	static let blink: Self = [.blink(.regular)]
-//
-//	/// Convenience property for rapid blink. Not widely supported.
-//	static let rapidBlink: Self = [.blink(.rapid)]
-//
 }
 
 public extension DefaultStringInterpolation {
