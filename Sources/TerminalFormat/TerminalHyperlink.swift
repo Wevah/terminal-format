@@ -32,12 +32,12 @@ public struct TerminalHyperlink: CustomDebugStringConvertible {
 		return "TerminalHyperlink: [url: \(url), string: \(string), id: \(id ?? "nil")]"
 	}
 
-	var startSequence: String {
+	private var startSequence: String {
 		let idstring = id != nil ? "id=\(id!)" : ""
 		return "\(.osc)8;\(idstring);\(url.absoluteString)\(.bell)"
 	}
 
-	var endSequence: String {
+	private var endSequence: String {
 		return "\(.osc)8;;\(.bell)"
 	}
 
