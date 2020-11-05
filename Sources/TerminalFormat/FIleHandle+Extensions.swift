@@ -9,7 +9,7 @@ import Foundation
 
 extension FileHandle {
 
-	/// Returns whether `self` is connected to a terminal.
+	/// Whether `self` is connected to a terminal.
 	var isTTY: Bool {
 		return isatty(self.fileDescriptor) != 0
 	}
