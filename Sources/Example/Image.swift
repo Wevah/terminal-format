@@ -7,7 +7,7 @@
 
 import Foundation
 import ArgumentParser
-import CommandLineImage
+import TerminalImage
 
 struct Image: ParsableCommand {
 
@@ -17,7 +17,7 @@ struct Image: ParsableCommand {
 
 	func run() {
 		print("Image example:")
-		let image = CLIImage(base64String: Self.testImage)
+		let image = TerminalImage(base64String: Self.testImage)
 		print(image.iTermEscaped())
 		print("")
 		print("inline: \(image)")

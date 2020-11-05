@@ -1,7 +1,7 @@
 import XCTest
-@testable import CommandLineFormat
+@testable import TerminalFormat
 
-final class CommandLineFormatTests: XCTestCase {
+final class TerminalFormatTests: XCTestCase {
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct

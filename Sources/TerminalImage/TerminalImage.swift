@@ -1,5 +1,5 @@
 //
-//  CLIImage.swift
+//  TerminalImage.swift
 //  
 //
 //  Created by Nate Weaver on 2020-10-27.
@@ -11,24 +11,24 @@ import AppKit
 import UIKit
 #endif
 
-import CommandLineFormat
+import TerminalFormat
 
 /// An inline image.
 ///
 /// For implementation details, see [Inline Images Protocol][proto] at the iTerm website.
 ///
 /// [proto]: https://www.iterm2.com/documentation-images.html
-public struct CLIImage {
+public struct TerminalImage {
 
 	private let base64: String
 
-	/// Initializes a `CLIImage` from image data.
+	/// Initializes a `TerminalImage` from image data.
 	/// - Parameter data: The image data.
 	public init(data: Data) {
 		base64 = data.base64EncodedString()
 	}
 
-	/// Initializes a `CLIImage` from an image URL.
+	/// Initializes a `TerminalImage` from an image URL.
 	/// - Parameter url: The url to the image file.
 	/// - Throws: An error in the Cocoa domain, if `url` cannot be read.
 	public init(url: URL) throws {
@@ -37,7 +37,7 @@ public struct CLIImage {
 	}
 
 	#if canImport(AppKit)
-	/// Initializes a `CLIImage` from an `NSImage`.
+	/// Initializes a `TerminalImage` from an `NSImage`.
 	/// - Parameter image: The source image.
 	public init?(image: NSImage) {
 		guard image.representations.count != 0 else { return nil }
@@ -58,7 +58,7 @@ public struct CLIImage {
 		self.init(data: data)
 	}
 	#elseif canImport(UIKit)
-	/// Initializes a `CLIImage` from a `UIImage`.
+	/// Initializes a `TerminalImage` from a `UIImage`.
 	/// - Parameter image: The source image.
 	/// - Returns: `nil` if the image couldn't be converted.
 	public init?(image: UIImage) {
@@ -71,7 +71,7 @@ public struct CLIImage {
 		base64 = base64String
 	}
 
-	/// A CLIImage dimension.
+	/// A TerminalImage dimension.
 	public enum Dimension: CustomStringConvertible, ExpressibleByIntegerLiteral {
 
 		/// Dimension measured in terminal cells.
@@ -136,11 +136,11 @@ public struct CLIImage {
 
 public extension DefaultStringInterpolation {
 
-	mutating func appendInterpolation(_ image: CLIImage, name: String? = nil, width: CLIImage.Dimension? = nil, height: CLIImage.Dimension? = nil, preserveAspectRatio: Bool = true) {
+	mutating func appendInterpolation(_ image: TerminalImage, name: String? = nil, width: TerminalImage.Dimension? = nil, height: TerminalImage.Dimension? = nil, preserveAspectRatio: Bool = true) {
 		self.appendLiteral(image.iTermEscaped(name: name, width: width, height: height, preserveAspectRatio: preserveAspectRatio))
 	}
 
-	mutating func appendInterpolation(_ image: CLIImage) {
+	mutating func appendInterpolation(_ image: TerminalImage) {
 		self.appendInterpolation(image, height: 1)
 	}
 

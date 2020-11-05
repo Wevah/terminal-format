@@ -13,7 +13,7 @@ import Foundation
 ///
 /// String method:
 /// ```
-/// let attributes: [CLIAttribute] = [.brightGreen, .background(.gray)]
+/// let attributes: [TerminalAttribute] = [.brightGreen, .background(.gray)]
 /// print("hello".ansiFormatted(attributes: attributes))
 /// // Prints "hello" in bright green text with a gray background.
 /// ```
@@ -26,16 +26,16 @@ import Foundation
 ///
 /// Complex interpolation, verbose:
 /// ```
-///	let green = [CLIAttribute.green]
-///	let redBackground: [CLIAttribute] = [.backgroundColor(.red)]
-///	let blueBackgroundOnly: [CLIAttribute] = [.reset, .backgroundColor: .blue]
+///	let green = [TerminalAttribute.green]
+///	let redBackground: [TerminalAttribute] = [.backgroundColor(.red)]
+///	let blueBackgroundOnly: [TerminalAttribute] = [.reset, .backgroundColor: .blue]
 ///	print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four\(.reset) five")
 ///	// Prints "one" in the default colors, "two" in green,
 ///	// "three" in green with a red background,
 ///	// "four" in the default foreground color with a blue background,
 ///	// and finally "five" in the default colors.
 /// ```
-public enum CLIAttribute: Hashable {
+public enum TerminalAttribute: Hashable {
 
 	/// A terminal color.
 	public struct Color: Hashable {
@@ -291,44 +291,14 @@ public enum CLIAttribute: Hashable {
 	/// For example, for some imaginary CSI sequence whose code is `321`:
 	///
 	/// ```
-	/// let customAttributes: [CLIAttribute] = [.custom("321")]
+	/// let customAttributes: [TerminalAttribute] = [.custom("321")]
 	/// ```
 	case custom(String)
 
 }
 
-public struct CLIControlSequence {
-
-	fileprivate let string: String
-
-	fileprivate init(_ string: String) {
-		self.string = string
-	}
-
-	/// The escape character (`ESC`, `0x1b`).
-	public static let escape = Self("\u{001B}")
-
-	/// The bell character (`BEL`, `0x07`).
-	public static let bell = Self("\u{0007}")
-
-	/// Control Sequence Introducer, `ESC` + `[`.
-	public static let csi = Self("\(escape)[")
-
-	/// Operating System Command, `ESC` + `]`.
-	public static let osc = Self("\(escape)]")
-
-}
-
-public extension DefaultStringInterpolation {
-
-	mutating func appendInterpolation(_ controlSequence: CLIControlSequence) {
-		self.appendLiteral(controlSequence.string)
-	}
-
-}
-
 // Convenience properties.
-public extension CLIAttribute {
+public extension TerminalAttribute {
 
 	/// Convenience for a black foreground color.
 	static let black = Self.foregroundColor(.black)
@@ -386,7 +356,7 @@ public extension CLIAttribute {
 	
 }
 
-public extension CLIAttribute {
+public extension TerminalAttribute {
 
 	var escapeCode: String {
 		switch self {
@@ -431,7 +401,7 @@ public extension CLIAttribute {
 
 }
 
-extension CLIAttribute: CustomDebugStringConvertible {
+extension TerminalAttribute: CustomDebugStringConvertible {
 
 	public var debugDescription: String {
 		switch self {
@@ -476,17 +446,17 @@ extension CLIAttribute: CustomDebugStringConvertible {
 
 }
 
-extension Array: TerminalPrintable where Element == CLIAttribute {
+extension Array: TerminalPrintable where Element == TerminalAttribute {
 
 	public var escapeSequence: String {
-		return "\(CLIControlSequence.csi)\(self.map { $0.escapeCode }.joined(separator: ";"))m"
+		return "\(TerminalControlSequence.csi)\(self.map { $0.escapeCode }.joined(separator: ";"))m"
 
 	}
 }
 
-public typealias CLIColor = CLIAttribute.Color
+public typealias TerminalColor = TerminalAttribute.Color
 
-private extension CLIColor {
+private extension TerminalColor {
 
 	private func bits4ToBits8() -> UInt8 {
 		guard case let .bits4(value) = type else { fatalError() }
@@ -536,7 +506,7 @@ private extension CLIColor {
 
 }
 
-extension CLIColor: CustomDebugStringConvertible {
+extension TerminalColor: CustomDebugStringConvertible {
 
 	public var debugDescription: String {
 		switch type {
@@ -560,10 +530,10 @@ extension CLIColor: CustomDebugStringConvertible {
 
 }
 
-///// Convenience properties.
-public extension Array where Element == CLIAttribute {
+// Convenience properties.
+public extension Array where Element == TerminalAttribute {
 //
-	static let reset: [CLIAttribute] = [.reset]
+	static let reset: [TerminalAttribute] = [.reset]
 //
 //	static let black: Self = [.foregroundColor(.black)]
 //	static let red: Self = [.foregroundColor(.red)]
@@ -583,32 +553,32 @@ public extension Array where Element == CLIAttribute {
 //	static let brightCyan: Self = [.foregroundColor(.brightCyan)]
 //	static let brightWhite: Self = [.foregroundColor(.brightWhite)]
 //
-//	static func foregroundColor(index: UInt8) -> [CLIAttribute] {
-//		return [.foregroundColor(CLIColor(bits8: index))]
+//	static func foregroundColor(index: UInt8) -> [TerminalAttribute] {
+//		return [.foregroundColor(TerminalColor(bits8: index))]
 //	}
 //
-//	static func foregroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
-//		return [.foregroundColor(CLIColor(red: red, green: green, blue: blue))]
+//	static func foregroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [TerminalAttribute] {
+//		return [.foregroundColor(TerminalColor(red: red, green: green, blue: blue))]
 //	}
 //
 //	static let defaultForegroundColor: Self = [.foregroundColor(.default)]
 //
-//	static func backgroundColor(index: UInt8) -> [CLIAttribute] {
-//		return [.backgroundColor(CLIColor(bits8: index))]
+//	static func backgroundColor(index: UInt8) -> [TerminalAttribute] {
+//		return [.backgroundColor(TerminalColor(bits8: index))]
 //	}
 //
-//	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
-//		return [.backgroundColor(CLIColor(red: red, green: green, blue: blue))]
+//	static func backgroundColor(red: UInt8, green: UInt8, blue: UInt8) -> [TerminalAttribute] {
+//		return [.backgroundColor(TerminalColor(red: red, green: green, blue: blue))]
 //	}
 //
 //	static let defaultBackgroundColor: Self = [.backgroundColor(.default)]
 //
-//	static func underlineColor(index: UInt8) -> [CLIAttribute] {
-//		return [.underlineColor(CLIColor(bits8: index))]
+//	static func underlineColor(index: UInt8) -> [TerminalAttribute] {
+//		return [.underlineColor(TerminalColor(bits8: index))]
 //	}
 //
-//	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> [CLIAttribute] {
-//		return [.underlineColor(CLIColor(red: red, green: green, blue: blue))]
+//	static func underlineColor(red: UInt8, green: UInt8, blue: UInt8) -> [TerminalAttribute] {
+//		return [.underlineColor(TerminalColor(red: red, green: green, blue: blue))]
 //	}
 //
 //	static let defaultUnderlineColor: Self = [.underlineColor(.default)]
@@ -636,7 +606,7 @@ public extension DefaultStringInterpolation {
 	/// - Parameters:
 	///   - string: The string to format.
 	///   - attributes: The attributes to apply. If `nil`, no attributes will be applied.
-	mutating func appendInterpolation<T>(_ value: T, attributes: [CLIAttribute]?) {
+	mutating func appendInterpolation<T>(_ value: T, attributes: [TerminalAttribute]?) {
 		if let attributes = attributes, attributes.count != 0 {
 			self.appendInterpolation(attributes)
 			self.appendInterpolation(value)
@@ -650,7 +620,7 @@ public extension DefaultStringInterpolation {
 	///
 	/// - Parameters:
 	///   - attributes: The attributes to apply.
-	mutating func appendInterpolation(_ attributes: [CLIAttribute]) {
+	mutating func appendInterpolation(_ attributes: [TerminalAttribute]) {
 		guard attributes.count != 0 else { return }
 		self.appendLiteral(attributes.escapeSequence)
 	}
@@ -659,21 +629,21 @@ public extension DefaultStringInterpolation {
 	///
 	/// - Parameters:
 	///   - attributes: The attributes to apply. If `nil`, no attributes are set.
-	mutating func appendInterpolation(_ attributes: [CLIAttribute]?) {
+	mutating func appendInterpolation(_ attributes: [TerminalAttribute]?) {
 		guard let attributes = attributes else { return }
 		self.appendInterpolation(attributes)
 	}
 
 }
-//
-//public extension StringProtocol {
-//
-//	/// Formats a string with ANSI escape codes and a reset at the end.
-//	/// - Parameter format: The format to use.
-//	/// - Returns: A new string with escape sequence described by `format` prepended,
-//	/// and the `.reset` escape sequence appended.
-//	func ansiFormatted(attributes: [CLIAttribute]) -> String {
-//		return "\(self, attributes: attributes)"
-//	}
-//
-//}
+
+public extension StringProtocol {
+
+	/// Formats a string with ANSI escape codes and a reset at the end.
+	/// - Parameter format: The format to use.
+	/// - Returns: A new string with escape sequence described by `format` prepended,
+	/// and the `.reset` escape sequence appended.
+	func ansiFormatted(attributes: [TerminalAttribute]) -> String {
+		return "\(self, attributes: attributes)"
+	}
+
+}

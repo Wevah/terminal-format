@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CommandLineFormat
+import TerminalFormat
 import ArgumentParser
 
 struct Hyperlink: ParsableCommand {
@@ -16,7 +16,7 @@ struct Hyperlink: ParsableCommand {
 			\([.faint, .italic])All links should point to https://derailer.org/\([.reset])
 			""")
 
-		let link = CLIHyperlink(url: URL(string: "https://derailer.org/")!, string: "Derailer")
+		let link = TerminalHyperlink(url: URL(string: "https://derailer.org/")!, string: "Derailer")
 		print("all-in-one: \(link)")
 
 		print("wrapping: \("hello", link: link) after")

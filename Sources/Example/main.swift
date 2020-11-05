@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import CommandLineImage
-import CommandLineFormat
 import ArgumentParser
 
 struct Example: ParsableCommand {

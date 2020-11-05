@@ -1,7 +1,7 @@
 import XCTest
 
-import CommandLineFormatTests
+import TerminalFormatTests
 
 var tests = [XCTestCaseEntry]()
-tests += CommandLineFormatTests.allTests()
+tests += TerminalFormatTests.allTests()
 XCTMain(tests)

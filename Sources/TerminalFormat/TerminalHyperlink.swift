@@ -10,7 +10,7 @@ import Foundation
 /// A terminal hyperlink.
 ///
 /// Supported by iTerm and kitty.
-public struct CLIHyperlink: CustomDebugStringConvertible {
+public struct TerminalHyperlink: CustomDebugStringConvertible {
 
 	public init(url: URL, string: String, id: String? = nil) {
 		self.url = url
@@ -29,7 +29,7 @@ public struct CLIHyperlink: CustomDebugStringConvertible {
 	public var id: String?
 
 	public var debugDescription: String {
-		return "CLIHyperlink: [url: \(url), string: \(string), id: \(id ?? "nil")]"
+		return "TerminalHyperlink: [url: \(url), string: \(string), id: \(id ?? "nil")]"
 	}
 
 	var startSequence: String {
@@ -43,7 +43,7 @@ public struct CLIHyperlink: CustomDebugStringConvertible {
 
 }
 
-extension CLIHyperlink: TerminalPrintable {
+extension TerminalHyperlink: TerminalPrintable {
 
 	public var escapeSequence: String {
 		return "\(startSequence)\(string)\(endSequence)"
@@ -53,14 +53,14 @@ extension CLIHyperlink: TerminalPrintable {
 
 public extension DefaultStringInterpolation {
 
-	mutating func appendInterpolation(_ string: String, link: CLIHyperlink) {
+	mutating func appendInterpolation(_ string: String, link: TerminalHyperlink) {
 		var copy = link
 		copy.string = string
 		appendInterpolation(copy)
 	}
 
 	mutating func appendInterpolation(_ string: String, url: URL, id: String? = nil) {
-		let link = CLIHyperlink(url: url, string: string, id: id)
+		let link = TerminalHyperlink(url: url, string: string, id: id)
 		appendInterpolation(link)
 	}
 

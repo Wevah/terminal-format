@@ -4,15 +4,15 @@
 import PackageDescription
 
 let package = Package(
-	name: "CommandLineFormat",
+	name: "TerminalFormat",
 	products: [
 		// Products define the executables and libraries a package produces, and make them visible to other packages.
 		.library(
-			name: "CommandLineFormat",
-			targets: ["CommandLineFormat"]),
+			name: "TerminalFormat",
+			targets: ["TerminalFormat"]),
 		.library(
-			name: "CommandLineImage",
-			targets: ["CommandLineImage"]),
+			name: "TerminalImage",
+			targets: ["TerminalImage"]),
 		.executable(name: "example", targets: ["Example"])
 	],
 	dependencies: [
@@ -22,16 +22,16 @@ let package = Package(
 		// Targets are the basic building blocks of a package. A target can define a module or a test suite.
 		// Targets can depend on other targets in this package, and on products in packages this package depends on.
 		.target(
-			name: "CommandLineFormat",
+			name: "TerminalFormat",
 			dependencies: []),
 		.target(
-			name: "CommandLineImage",
-			dependencies: ["CommandLineFormat"]),
+			name: "TerminalImage",
+			dependencies: ["TerminalFormat"]),
 		.target(
 			name: "Example",
-			dependencies: ["CommandLineImage", .product(name: "ArgumentParser", package: "swift-argument-parser")]),
+			dependencies: ["TerminalImage", .product(name: "ArgumentParser", package: "swift-argument-parser")]),
 		.testTarget(
-			name: "CommandLineFormatTests",
-			dependencies: ["CommandLineFormat"]),
+			name: "TerminalFormatTests",
+			dependencies: ["TerminalFormat"]),
 	]
 )

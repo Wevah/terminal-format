@@ -7,7 +7,7 @@
 
 import Foundation
 import ArgumentParser
-import CommandLineFormat
+import TerminalFormat
 
 struct Custom: ParsableCommand {
 
@@ -16,7 +16,7 @@ struct Custom: ParsableCommand {
 	@Flag var faint: Bool = false
 	@Option(transform: { URL(string: $0) }) var url: URL? = nil
 	@Option(
-		transform: { (string) -> CLIAttribute.UnderlineStyle? in
+		transform: { (string) -> TerminalAttribute.UnderlineStyle? in
 			switch string {
 				case "single":
 					return .single
@@ -32,12 +32,12 @@ struct Custom: ParsableCommand {
 					return nil
 			}
 		})
-	var underline: CLIAttribute.UnderlineStyle?
+	var underline: TerminalAttribute.UnderlineStyle?
 
 	@Argument var text: [String] = []
 
 	func run() {
-		var attributes = [CLIAttribute]()
+		var attributes = [TerminalAttribute]()
 
 		if bold {
 			attributes.append(.bold)
@@ -58,7 +58,7 @@ struct Custom: ParsableCommand {
 		let formatted = "\(text.joined(separator: " "), attributes: attributes.count != 0 ? attributes : nil)"
 
 		if let url = url {
-			let hyperlink = CLIHyperlink(url: url, string: formatted)
+			let hyperlink = TerminalHyperlink(url: url, string: formatted)
 
 			print(hyperlink)
 		} else {

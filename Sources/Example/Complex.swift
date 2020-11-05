@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CommandLineFormat
+import TerminalFormat
 import ArgumentParser
 
 struct Complex: ParsableCommand {
@@ -24,9 +24,9 @@ struct Complex: ParsableCommand {
 			// and finally "five" in the default colors.\([.reset])
 
 			""")
-		let green: [CLIAttribute] = [.green]
-		let redBackground: [CLIAttribute] = [.background(.red), .bold]
-		let blueBackgroundOnly: [CLIAttribute] = [.reset, .backgroundColor(.blue), .italic]
+		let green: [TerminalAttribute] = [.green]
+		let redBackground: [TerminalAttribute] = [.background(.red), .bold]
+		let blueBackgroundOnly: [TerminalAttribute] = [.reset, .backgroundColor(.blue), .italic]
 		print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four\([.reset]) five\n")
 	}
 

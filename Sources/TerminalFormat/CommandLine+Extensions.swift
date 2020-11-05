@@ -22,7 +22,7 @@ public extension CommandLine {
 	/// 
 	/// - Parameter title: The new title. Pass an empty string to reset.
 	static func setWindowTitle(_ title: String) {
-		print("\(CLIControlSequence.osc)0;\(title)\(CLIControlSequence.bell)")
+		print("\(TerminalControlSequence.osc)0;\(title)\(TerminalControlSequence.bell)")
 	}
 
 }
