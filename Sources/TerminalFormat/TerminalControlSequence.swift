@@ -29,6 +29,9 @@ public struct TerminalControlSequence {
 
 }
 
+// An explicit appendInterpolation function is defined here instead of
+// conforming to TerminalPrintable so the type can be inferred in interpolations like "\(.escape)".
+
 public extension DefaultStringInterpolation {
 
 	mutating func appendInterpolation(_ controlSequence: TerminalControlSequence) {
