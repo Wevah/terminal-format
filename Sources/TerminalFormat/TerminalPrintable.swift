@@ -9,6 +9,7 @@ import Foundation
 
 public protocol TerminalPrintable {
 
+	/// The terminal sequence used for interpolation.
 	var escapeSequence: String { get }
 
 }
