@@ -7,6 +7,9 @@
 
 import Foundation
 
+/// Predefined terminal control sequences.
+///
+/// Used internally by `TerminalAttribute`, etc.
 public struct TerminalControlSequence {
 
 	fileprivate let string: String
