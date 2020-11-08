@@ -346,10 +346,12 @@ public extension TerminalAttribute {
 	/// Convenience for regular blink.
 	static let blink = Self.blink(.regular)
 
+	/// Shorthand for `.foregroundColor`.
 	static func color(_ color: Color) -> Self {
 		return .foregroundColor(color)
 	}
 
+	/// Shorthand for `.backgroundColor`.
 	static func background(_ color: Color) -> Self {
 		return .backgroundColor(color)
 	}
@@ -533,6 +535,7 @@ extension TerminalColor: CustomDebugStringConvertible {
 public extension Array where Element == TerminalAttribute {
 
 	static let reset: [TerminalAttribute] = [.reset]
+
 }
 
 public extension DefaultStringInterpolation {
@@ -551,24 +554,24 @@ public extension DefaultStringInterpolation {
 			self.appendInterpolation(value)
 		}
 	}
-
-	/// Append formatting escapes.
-	///
-	/// - Parameters:
-	///   - attributes: The attributes to apply.
-	mutating func appendInterpolation(_ attributes: [TerminalAttribute]) {
-		guard attributes.count != 0 else { return }
-		self.appendLiteral(attributes.escapeSequence)
-	}
-
-	/// Append formatting escapes.
-	///
-	/// - Parameters:
-	///   - attributes: The attributes to apply. If `nil`, no attributes are set.
-	mutating func appendInterpolation(_ attributes: [TerminalAttribute]?) {
-		guard let attributes = attributes else { return }
-		self.appendInterpolation(attributes)
-	}
+//
+//	/// Append formatting escapes.
+//	///
+//	/// - Parameters:
+//	///   - attributes: The attributes to apply.
+//	mutating func appendInterpolation(_ attributes: [TerminalAttribute]) {
+//		guard attributes.count != 0 else { return }
+//		self.appendLiteral(attributes.escapeSequence)
+//	}
+//
+//	/// Append formatting escapes.
+//	///
+//	/// - Parameters:
+//	///   - attributes: The attributes to apply. If `nil`, no attributes are set.
+//	mutating func appendInterpolation(_ attributes: [TerminalAttribute]?) {
+//		guard let attributes = attributes else { return }
+//		self.appendInterpolation(attributes)
+//	}
 
 }
 
