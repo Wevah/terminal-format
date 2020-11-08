@@ -11,6 +11,8 @@ import ArgumentParser
 
 struct Hyperlink: ParsableCommand {
 
+	static var configuration = CommandConfiguration(abstract: "Display a terminal hyperlink (iTerm, etc.).")
+
 	func run() {
 		print("""
 			\([.faint, .italic])// All links should point to https://derailer.org/\([.reset])
@@ -19,8 +21,8 @@ struct Hyperlink: ParsableCommand {
 		let link = TerminalHyperlink(url: URL(string: "https://derailer.org/")!, string: "Derailer")
 		print("all-in-one: \(link)")
 
-		print("wrapping: \("Derailer", link: link) <after link>")
-		print("raw url: \("Derailer", url: URL(string: "https://derailer.org/")!) <after link>")
+		print("wrapping: \("Derailer", link: link)")
+		print("raw url: \("Derailer", url: URL(string: "https://derailer.org/")!)")
 	}
 
 }

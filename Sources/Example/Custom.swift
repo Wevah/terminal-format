@@ -11,10 +11,13 @@ import TerminalFormat
 
 struct Custom: ParsableCommand {
 
+	static var configuration = CommandConfiguration(abstract: "Customize output.")
+
 	@Flag var bold: Bool = false
 	@Flag var italic: Bool = false
 	@Flag var faint: Bool = false
 	@Option(transform: { URL(string: $0) }) var url: URL? = nil
+	@Option(transform: { TerminalAttribute.custom($0) }) var custom: [TerminalAttribute]
 	@Option(
 		transform: { (string) -> TerminalAttribute.UnderlineStyle? in
 			switch string {
@@ -54,6 +57,8 @@ struct Custom: ParsableCommand {
 		if let underline = underline {
 			attributes.append(.underline(underline))
 		}
+
+		attributes.append(contentsOf: custom)
 
 		let formatted = "\(text.joined(separator: " "), attributes: attributes.count != 0 ? attributes : nil)"
 
