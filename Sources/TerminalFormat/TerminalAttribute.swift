@@ -28,7 +28,7 @@ import Foundation
 /// ```
 ///	let green = [TerminalAttribute.green]
 ///	let redBackground: [TerminalAttribute] = [.backgroundColor(.red)]
-///	let blueBackgroundOnly: [TerminalAttribute] = [.reset, .backgroundColor: .blue]
+///	let blueBackgroundOnly: [TerminalAttribute] = [.reset, .backgroundColor(.blue)]
 ///	print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four\(.reset) five")
 ///	// Prints "one" in the default colors, "two" in green,
 ///	// "three" in green with a red background,
