@@ -7,23 +7,37 @@ API is still in flux!
 
 ## Examples
 
-Simple single-string formatting:
-
+String method:
 ```swift
-let format = CLIFormat(foregroundColor: .brightGreen, backgroundColor: .gray)
-print("hello".ansiFormatted(format: format))
+let attributes: [TerminalAttribute] = [.brightGreen, .background(.gray)]
+print("hello".ansiFormatted(attributes: attributes))
 // Prints "hello" in bright green text with a gray background.
 ```
 
-Explicit :
+Inline interpolation:
 
 ```swift
-let green = CLIFormat.green
-let redBackground = CLIFormat(backgroundColor: .red)
-let blueBackgroundOnly = CLIFormat(backgroundColor: .blue, reset: true)
-print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four \(.reset) five")
+print("This is \("red", attributes: [.red])")
+// Prints "red" in red.
+```
+
+Complex interpolation, verbose:
+
+```swift
+let green: [TerminalAttribute] = [.green]
+let redBackground: [TerminalAttribute] = [.backgroundColor(.red)]
+let blueBackgroundOnly: [TerminalAttribute] = [.reset, .backgroundColor(.blue)]
+print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four\(.reset) five")
 // Prints "one" in the default colors, "two" in green,
 // "three" in green with a red background,
 // "four" in the default foreground color with a blue background,
 // and finally "five" in the default colors.
 ```
+
+Currently upports a few esoteric attributes, like squiggly underline (iTerm2/kitty).
+
+Includes an optional target for displaying inline images in iTerm2 (whose API is even more in-flux than the main target's).
+
+---
+
+© 2020 Nate Weaver
