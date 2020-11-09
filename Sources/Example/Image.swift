@@ -1,5 +1,5 @@
 //
-//  KittyImage.swift
+//  Image.swift
 //  
 //
 //  Created by Nate Weaver on 2020-10-28.
