@@ -1,4 +1,4 @@
-# CommandLineFormat
+# TerminalFormat
 version 0.1.0
 
 Simple terminal string formatting, with custom interpolation.
