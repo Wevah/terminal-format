@@ -36,7 +36,7 @@ print("one \(green)two \(redBackground)three \(blueBackgroundOnly)four\(.reset) 
 
 Currently upports a few esoteric attributes, like squiggly underline (iTerm2/kitty).
 
-Includes an optional target for displaying inline images in iTerm2 (whose API is even more in-flux than the main target's).
+Includes an optional target (whose API is even more in-flux than the main target's) for displaying inline images in iTerm2.
 
 ---
 
