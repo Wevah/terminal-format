@@ -532,6 +532,45 @@ extension TerminalColor: CustomDebugStringConvertible {
 
 }
 
+// Codable conformance. Currently re-encodes .bits4 as .bits8; this may change in the future.
+extension TerminalColor: Codable {
+
+	public init(from decoder: Decoder) throws {
+		let container = try decoder.singleValueContainer()
+
+		do {
+			let value = try container.decode(UInt8.self)
+			self.init(bits8: value)
+		} catch {
+			var container = try decoder.unkeyedContainer()
+			let red = try container.decode(UInt8.self)
+			let green = try container.decode(UInt8.self)
+			let blue = try container.decode(UInt8.self)
+
+			self.init(red: red, green: green, blue: blue)
+		}
+	}
+
+	public func encode(to encoder: Encoder) throws {
+		switch type {
+			case .bits4:
+				var container = encoder.singleValueContainer()
+				try container.encode(bits4ToBits8())
+			case let .bits8(value):
+				var container = encoder.singleValueContainer()
+				try container.encode(value)
+			case let .bits24(red: red, green: green, blue: blue):
+				var container = encoder.unkeyedContainer()
+				try container.encode(red)
+				try container.encode(green)
+				try container.encode(blue)
+			default:
+				fatalError("Unsupported color type")
+		}
+	}
+
+}
+
 public extension Array where Element == TerminalAttribute {
 
 	static let reset: [TerminalAttribute] = [.reset]
